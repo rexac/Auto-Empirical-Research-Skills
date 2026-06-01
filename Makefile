@@ -1,4 +1,4 @@
-.PHONY: catalog validate check audit evals benchmark test
+.PHONY: catalog validate check audit eval-harness benchmark test
 
 catalog:
 	python3 scripts/build-provenance.py
@@ -14,9 +14,10 @@ validate:
 	python3 scripts/build-catalog.py --check
 	python3 scripts/build-catalog-enrich.py --check
 
-# Lint eval scenarios (CI gate; needs no candidate outputs).
-evals:
-	python3 evals/run_evals.py
+# Lint executable eval-harness scenarios (CI gate; needs no candidate outputs).
+# Distinct from `make evals` (the declarative flagship-evals prompt matrix).
+eval-harness:
+	python3 eval-harness/run_evals.py
 
 # Reproducible numeric benchmark; --strict fails on a required-gold miss.
 benchmark:
@@ -28,7 +29,7 @@ test:
 	python3 -m unittest discover -s tests -p "test_*.py"
 
 # Full local gate: everything a PR should pass.
-check: validate test evals benchmark
+check: validate test eval-harness benchmark
 
 audit:
 	python3 scripts/validate-repo.py --audit

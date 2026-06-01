@@ -8,7 +8,7 @@ use [`search.html`](search.html); for the full tag index see
 
 > Trust note: a green hygiene score in [`SKILL_QUALITY.md`](SKILL_QUALITY.md)
 > means a skill is *well-formed*. Whether it makes an agent produce *correct*
-> econometrics is what [`evals/`](../evals/) and [`benchmark/`](../benchmark/)
+> econometrics is what [`eval-harness/`](../eval-harness/) and [`benchmark/`](../benchmark/)
 > measure. Prefer skills whose behavior is covered by an eval scenario.
 
 ## Start from your goal
@@ -36,13 +36,13 @@ Pick the design, then jump to the method tag in [`TAXONOMY.md`](TAXONOMY.md#meth
 - **Staggered diff-in-diff?** You almost never want plain TWFE. Look for
   `staggered-did` skills (Callaway–Sant'Anna, Sun–Abraham, Borusyak et al.,
   de Chaisemartin–D'Haultfœuille). Covered by the eval
-  [`statspai-staggered-did`](../evals/scenarios/statspai-staggered-did.toml).
+  [`statspai-staggered-did`](../eval-harness/scenarios/statspai-staggered-did.toml).
 - **Instrumental variables?** Check the `iv` tag; you want first-stage F
   reporting and weak-IV-robust inference. Covered by
-  [`statspai-weak-iv`](../evals/scenarios/statspai-weak-iv.toml).
+  [`statspai-weak-iv`](../eval-harness/scenarios/statspai-weak-iv.toml).
 - **Regression discontinuity?** Check `rdd`; you want a density/manipulation
   test, bandwidth sensitivity, and robust bias-corrected CIs. Covered by
-  [`statspai-rdd-diagnostics`](../evals/scenarios/statspai-rdd-diagnostics.toml).
+  [`statspai-rdd-diagnostics`](../eval-harness/scenarios/statspai-rdd-diagnostics.toml).
 - **Synthetic control / matching / DML?** Tags `synthetic-control`, `matching`,
   `dml`.
 

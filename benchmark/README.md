@@ -1,7 +1,7 @@
 # AERS Benchmark
 
 A small, **reproducible, dependency-free** benchmark of empirical-research agent
-behavior. Where [`evals/`](../evals/) checks *properties of an agent's prose*,
+behavior. Where [`eval-harness/`](../eval-harness/) checks *properties of an agent's prose*,
 the benchmark checks *numbers*: given a real dataset with a known answer, does
 the pipeline recover it — and does it avoid the trap a naive pipeline falls into?
 

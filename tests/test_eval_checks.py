@@ -1,4 +1,4 @@
-"""Unit tests for the eval check primitives (evals/lib/checks.py)."""
+"""Unit tests for the eval check primitives (eval-harness/lib/checks.py)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import unittest
 
 from _helpers import load_module
 
-checks = load_module("evals/lib/checks.py", "aers_checks")
+checks = load_module("eval-harness/lib/checks.py", "aers_checks")
 
 
 def run(item, text):

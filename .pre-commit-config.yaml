@@ -7,18 +7,18 @@
 repos:
   - repo: local
     hooks:
-      - id: aers-evals-lint
-        name: AERS eval scenarios lint
-        entry: python3 evals/run_evals.py
+      - id: aers-eval-harness-lint
+        name: AERS eval-harness scenarios lint
+        entry: python3 eval-harness/run_evals.py
         language: system
         pass_filenames: false
-        files: ^evals/
+        files: ^eval-harness/
       - id: aers-unit-tests
         name: AERS unit tests
         entry: python3 -m unittest discover -s tests -p "test_*.py"
         language: system
         pass_filenames: false
-        files: ^(tests/|evals/|benchmark/|scripts/)
+        files: ^(tests/|eval-harness/|benchmark/|scripts/)
       - id: aers-benchmark
         name: AERS benchmark (strict)
         entry: bash -c 'python3 benchmark/reference_pipeline.py >/dev/null && python3 benchmark/check_benchmark.py --strict >/dev/null'

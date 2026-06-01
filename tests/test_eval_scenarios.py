@@ -1,4 +1,4 @@
-"""Tests for scenario loading/validation and the grader (evals/run_evals.py)."""
+"""Tests for scenario loading/validation and the grader (eval-harness/run_evals.py)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import unittest
 
 from _helpers import load_module
 
-run_evals = load_module("evals/run_evals.py", "aers_run_evals")
+run_evals = load_module("eval-harness/run_evals.py", "aers_run_evals")
 
 
 class TestRealScenarios(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestRealScenarios(unittest.TestCase):
 class TestValidationCatchesBadScenarios(unittest.TestCase):
     def _base(self):
         return {
-            "id": "x", "_path": "evals/scenarios/x.toml", "skill": "skills",
+            "id": "x", "_path": "eval-harness/scenarios/x.toml", "skill": "skills",
             "title": "t", "category": "c", "severity": "high", "prompt": "p",
             "rubric": [{"id": "r", "check": "regex_any", "pattern": "a", "description": "d"}],
         }
@@ -39,7 +39,7 @@ class TestValidationCatchesBadScenarios(unittest.TestCase):
         self.assertTrue(any("severity" in p for p in run_evals.validate_scenario(s)))
 
     def test_stem_must_match_id(self):
-        s = self._base(); s["_path"] = "evals/scenarios/other.toml"
+        s = self._base(); s["_path"] = "eval-harness/scenarios/other.toml"
         self.assertTrue(any("file stem" in p for p in run_evals.validate_scenario(s)))
 
     def test_invalid_check_type(self):
@@ -60,7 +60,7 @@ class TestGrader(unittest.TestCase):
     def test_example_candidates_discriminate(self):
         scenarios = run_evals.load_scenarios()
         by_id = {s["id"]: s for s in scenarios}
-        cand = run_evals.ROOT / "evals" / "candidates" / "_example"
+        cand = run_evals.ROOT / "eval-harness" / "candidates" / "_example"
 
         # The deliberately weak weak-IV answer must be gated.
         weak = run_evals.grade_candidate(by_id["statspai-weak-iv"], cand)

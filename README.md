@@ -82,7 +82,7 @@ This repository is the **Agent Skills landscape** we compiled while building CoP
 - Search the local index (faceted by method/stage/language): [`docs/search.html`](docs/search.html)
 - Browse the generated local catalog: [`docs/SKILL_CATALOG.md`](docs/SKILL_CATALOG.md) · taxonomy: [`docs/TAXONOMY.md`](docs/TAXONOMY.md)
 - Copy a ready-to-run empirical workflow: [`docs/GOLDEN_WORKFLOWS.md`](docs/GOLDEN_WORKFLOWS.md)
-- Check skill quality: correctness evals [`evals/`](evals/) · numeric benchmark [`benchmark/`](benchmark/) · hygiene scorecard [`docs/SKILL_QUALITY.md`](docs/SKILL_QUALITY.md)
+- Check skill quality: executable eval-harness [`eval-harness/`](eval-harness/) · numeric benchmark [`benchmark/`](benchmark/) · hygiene scorecard [`docs/SKILL_QUALITY.md`](docs/SKILL_QUALITY.md)
 - See flagship demos: [`docs/demos/`](docs/demos/)
 - Install or copy skills into an agent runtime: [`docs/INSTALL.md`](docs/INSTALL.md)
 - Use the machine-readable index: [`catalog/skills.json`](catalog/skills.json)

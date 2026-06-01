@@ -1,9 +1,18 @@
-# AERS Evals
+# AERS Eval-Harness (executable layer)
 
 A lightweight, **dependency-free** evaluation harness for the flagship skills in
 this repo. It answers the question a maintainer of a 977-file skill collection
 actually has to answer: *do these skills make an agent produce correct,
 referee-proof empirical work — or just plausible-looking text?*
+
+> Two complementary eval layers live in this repo. `docs/EVALS.md` (generated
+> from `evals/flagship-evals.json`) is the **declarative** layer: it defines, per
+> flagship skill, a prompt + the expected artifacts and human/agent review checks
+> — expectations, not an automatic grade. This `eval-harness/` is the
+> **executable** layer: it auto-grades machine-checkable rubric items and emits
+> judge prompts for the rest. Use the declarative matrix to know *what good looks
+> like*; use the harness to *enforce it in CI*. The numeric counterpart is
+> [`benchmark/`](../benchmark/).
 
 ## Why rubric-based?
 
@@ -31,7 +40,7 @@ strong). That asymmetry is exactly what you want from a cheap, always-on CI gate
 ## Layout
 
 ```
-evals/
+eval-harness/
   run_evals.py            # the harness (stdlib only: tomllib + json + re)
   lib/checks.py           # machine-checkable rubric primitives
   schema/scenario.schema.json   # documents the scenario shape
@@ -44,17 +53,17 @@ evals/
 
 ```bash
 # 1. Lint every scenario + coverage report (this is the CI gate; needs no outputs)
-python3 evals/run_evals.py
+python3 eval-harness/run_evals.py
 
 # 2. List scenarios
-python3 evals/run_evals.py --list
+python3 eval-harness/run_evals.py --list
 
 # 3. Grade candidate agent outputs (one file per scenario: <id>.md or <id>.txt)
-python3 evals/run_evals.py --grade evals/candidates/_example
-#    -> writes evals/results/RESULTS.md and results.json
+python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example
+#    -> writes eval-harness/results/RESULTS.md and results.json
 
 # 4. Emit judge prompts for the manual items (paste into any LLM or hand to a human)
-python3 evals/run_evals.py --judge-prompts /tmp/judge --grade evals/candidates/_example
+python3 eval-harness/run_evals.py --judge-prompts /tmp/judge --grade eval-harness/candidates/_example
 ```
 
 To evaluate a real agent: run each scenario's `prompt` against your agent with
