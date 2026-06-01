@@ -72,5 +72,48 @@ class TestGrader(unittest.TestCase):
         self.assertEqual(good["status"], "pass")
 
 
+class TestJudge(unittest.TestCase):
+    def test_parse_fenced_json(self):
+        text = 'Sure!\n```json\n{"items": [{"id": "a", "verdict": "pass", "why": "ok"}]}\n```'
+        out = run_evals.parse_judge_response(text)
+        self.assertEqual(out["a"]["verdict"], "pass")
+
+    def test_parse_bare_json_with_prose(self):
+        text = 'Here is my judgement: {"items":[{"id":"x","verdict":"fail"}]} done.'
+        out = run_evals.parse_judge_response(text)
+        self.assertEqual(out["x"]["verdict"], "fail")
+
+    def test_parse_no_json_raises(self):
+        with self.assertRaises(ValueError):
+            run_evals.parse_judge_response("no json here")
+
+    def test_mock_judge_resolves_manual_item(self):
+        scenarios = run_evals.load_scenarios()
+        by_id = {s["id"]: s for s in scenarios}
+        cand = run_evals.ROOT / "eval-harness" / "candidates" / "_example"
+
+        # de-aigc has a manual item "meaning-and-fluency"; a mock judge passes it.
+        def mock_judge(prompt):
+            return {"meaning-and-fluency": {"verdict": "pass", "why": "faithful"}}
+
+        graded = run_evals.grade_candidate(by_id["de-aigc-structural"], cand, judge=mock_judge)
+        manual_item = next(i for i in graded["items"] if i["id"] == "meaning-and-fluency")
+        self.assertEqual(manual_item["status"], "pass")
+        self.assertNotIn("meaning-and-fluency", graded["manual_items"])
+
+    def test_judge_failure_does_not_crash(self):
+        scenarios = run_evals.load_scenarios()
+        by_id = {s["id"]: s for s in scenarios}
+        cand = run_evals.ROOT / "eval-harness" / "candidates" / "_example"
+
+        def boom(prompt):
+            raise RuntimeError("network down")
+
+        graded = run_evals.grade_candidate(by_id["de-aigc-structural"], cand, judge=boom)
+        self.assertIn("judge_note", graded)
+        # Manual item stays manual when the judge is unavailable.
+        self.assertIn("meaning-and-fluency", graded["manual_items"])
+
+
 if __name__ == "__main__":
     unittest.main()

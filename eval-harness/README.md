@@ -64,6 +64,10 @@ python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example
 
 # 4. Emit judge prompts for the manual items (paste into any LLM or hand to a human)
 python3 eval-harness/run_evals.py --judge-prompts /tmp/judge --grade eval-harness/candidates/_example
+
+# 5. Auto-grade the manual items with an LLM judge (optional; degrades gracefully)
+ANTHROPIC_API_KEY=sk-... python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example --judge
+#    needs `pip install anthropic`; without a key it just grades machine-checkable items
 ```
 
 To evaluate a real agent: run each scenario's `prompt` against your agent with

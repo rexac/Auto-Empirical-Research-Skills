@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -155,7 +156,7 @@ def rubric_stats(scenarios: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def grade_candidate(s: dict[str, Any], candidate_dir: Path) -> dict[str, Any]:
+def grade_candidate(s: dict[str, Any], candidate_dir: Path, judge=None) -> dict[str, Any]:
     sid = s["id"]
     cand_path = None
     for ext in (".md", ".txt"):
@@ -168,23 +169,41 @@ def grade_candidate(s: dict[str, Any], candidate_dir: Path) -> dict[str, Any]:
                 "items": [], "auto_score": None}
 
     text = cand_path.read_text(encoding="utf-8", errors="replace")
+
+    # Optional LLM judge verdicts for manual (and any other) items.
+    verdicts: dict[str, dict] = {}
+    judge_note = ""
+    if judge is not None and any(i.get("check", MANUAL_CHECK) == MANUAL_CHECK for i in s["rubric"]):
+        try:
+            verdicts = judge(emit_judge_prompt(s, candidate_dir))
+        except Exception as exc:  # network/parse failure must not crash the run
+            judge_note = f"judge unavailable: {exc}"
+
     items_out = []
     earned = possible = 0.0
     required_failed = []
     manual_items = []
     for item in s["rubric"]:
         res = run_check(item, text)
+        status, detail, evidence = res.status, res.detail, res.evidence
+        # A judge can resolve a manual item into pass/fail.
+        if status == "manual" and res.item_id in verdicts:
+            v = verdicts[res.item_id]
+            verdict = str(v.get("verdict", "")).lower()
+            if verdict in {"pass", "fail"}:
+                status = verdict
+                detail = "judge: " + str(v.get("why", "")).strip()
         items_out.append({
-            "id": res.item_id, "status": res.status, "weight": res.weight,
-            "required": res.required, "detail": res.detail, "evidence": res.evidence,
+            "id": res.item_id, "status": status, "weight": res.weight,
+            "required": res.required, "detail": detail, "evidence": evidence,
         })
-        if res.status in {"pass", "fail"}:
+        if status in {"pass", "fail"}:
             possible += res.weight
-            if res.status == "pass":
+            if status == "pass":
                 earned += res.weight
             elif res.required:
                 required_failed.append(res.item_id)
-        elif res.status == "manual":
+        elif status == "manual":
             manual_items.append(res.item_id)
     auto_score = (earned / possible) if possible else None
     status = "pass"
@@ -192,11 +211,60 @@ def grade_candidate(s: dict[str, Any], candidate_dir: Path) -> dict[str, Any]:
         status = "fail-required"
     elif auto_score is not None and auto_score < 1.0:
         status = "partial"
-    return {
+    out = {
         "id": sid, "skill": s["skill"], "candidate": rel(cand_path),
         "status": status, "auto_score": auto_score, "earned": earned, "possible": possible,
         "required_failed": required_failed, "manual_items": manual_items, "items": items_out,
     }
+    if judge_note:
+        out["judge_note"] = judge_note
+    return out
+
+
+def parse_judge_response(text: str) -> dict[str, Any]:
+    """Extract the JSON verdict object from a (possibly fenced) LLM reply.
+
+    Returns a dict keyed by rubric item id -> {verdict, why}. Tolerant of
+    ```json fences and surrounding prose; raises ValueError if no JSON found.
+    """
+    cleaned = text.strip()
+    # Strip a leading/trailing code fence if present.
+    fence = re.search(r"```(?:json)?\s*(\{.*\})\s*```", cleaned, re.DOTALL)
+    blob = fence.group(1) if fence else None
+    if blob is None:
+        start, depth = cleaned.find("{"), 0
+        if start == -1:
+            raise ValueError("no JSON object in judge response")
+        for i in range(start, len(cleaned)):
+            depth += (cleaned[i] == "{") - (cleaned[i] == "}")
+            if depth == 0:
+                blob = cleaned[start:i + 1]
+                break
+    data = json.loads(blob)
+    return {str(it.get("id")): it for it in (data.get("items") or []) if it.get("id")}
+
+
+def make_anthropic_judge(model: str):
+    """Return a callable(prompt)->verdict-map backed by the Anthropic SDK, or
+    None if the SDK or ANTHROPIC_API_KEY is unavailable (graceful degrade)."""
+    import os
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    try:
+        import anthropic  # type: ignore
+    except ImportError:
+        return None
+    client = anthropic.Anthropic()
+
+    def judge(prompt: str) -> dict[str, Any]:
+        msg = client.messages.create(
+            model=model, max_tokens=1024,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = "".join(getattr(b, "text", "") for b in msg.content)
+        return parse_judge_response(text)
+
+    return judge
 
 
 def emit_judge_prompt(s: dict[str, Any], candidate_dir: Path | None) -> str:
@@ -276,6 +344,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--list", action="store_true", help="list scenarios and exit")
     ap.add_argument("--grade", metavar="DIR", help="score candidate outputs in DIR")
     ap.add_argument("--judge-prompts", metavar="DIR", help="write judge prompts to DIR")
+    ap.add_argument("--judge", action="store_true",
+                    help="auto-grade manual items with an LLM judge (needs ANTHROPIC_API_KEY + anthropic SDK)")
+    ap.add_argument("--judge-model", default="claude-sonnet-4-6", help="model id for --judge")
     ap.add_argument("--strict", action="store_true", help="treat warnings as errors")
     args = ap.parse_args(argv)
 
@@ -311,7 +382,16 @@ def main(argv: list[str] | None = None) -> int:
         if not cand.exists():
             print(f"Candidate dir not found: {cand}", file=sys.stderr)
             return 1
-        graded = [grade_candidate(s, cand) for s in scenarios]
+        judge = None
+        if args.judge:
+            judge = make_anthropic_judge(args.judge_model)
+            if judge is None:
+                print("--judge requested but no judge available "
+                      "(set ANTHROPIC_API_KEY and `pip install anthropic`); "
+                      "grading machine-checkable items only.", file=sys.stderr)
+            else:
+                print(f"Judging manual items with {args.judge_model}…")
+        graded = [grade_candidate(s, cand, judge=judge) for s in scenarios]
         stats = rubric_stats(scenarios)
         n_graded = sum(1 for g in graded if g["status"] != "no-candidate")
         n_failed = sum(1 for g in graded if g["status"] == "fail-required")
