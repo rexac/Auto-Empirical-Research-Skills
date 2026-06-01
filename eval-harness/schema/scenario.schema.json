@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/evals/scenario.schema.json",
+  "$id": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/eval-harness/schema/scenario.schema.json",
   "title": "AERS eval scenario",
-  "description": "Schema for a single eval scenario. Files are authored as TOML in evals/scenarios/<id>.toml; this JSON Schema documents the parsed shape and is enforced by evals/run_evals.py validate_scenario().",
+  "description": "Schema for a single eval scenario. Files are authored as TOML in eval-harness/scenarios/<id>.toml; this JSON Schema documents the parsed shape and is enforced by eval-harness/run_evals.py validate_scenario().",
   "type": "object",
   "required": ["id", "skill", "title", "category", "severity", "prompt", "rubric"],
   "additionalProperties": true,
@@ -14,12 +14,12 @@
     },
     "skill": {
       "type": "string",
-      "description": "Repo-relative path to the skill directory under test, e.g. skills/00-Full-empirical-analysis-skill_StatsPAI."
+      "description": "Repo-relative path to an existing skill directory under test, e.g. skills/00-Full-empirical-analysis-skill_StatsPAI. Absolute paths and paths escaping the repo are rejected."
     },
     "title": {"type": "string"},
     "category": {
       "type": "string",
-      "description": "Free-form grouping, e.g. causal-identification, writing-compliance, writing-style, reproducibility."
+      "description": "Free-form grouping, e.g. causal-identification, reproducibility, citation-hygiene, runtime-safety, writing-compliance, writing-style."
     },
     "severity": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
     "prompt": {
@@ -28,7 +28,7 @@
     },
     "context_data": {
       "type": "array",
-      "description": "Optional repo-relative fixture data paths the scenario depends on; validated to exist.",
+      "description": "Optional repo-relative fixture data paths the scenario depends on; each path must exist and stay inside the repo.",
       "items": {"type": "string"}
     },
     "rubric": {
@@ -42,7 +42,7 @@
       "type": "object",
       "required": ["id", "check", "description"],
       "properties": {
-        "id": {"type": "string"},
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
         "description": {"type": "string"},
         "required": {
           "type": "boolean",
