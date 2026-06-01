@@ -82,6 +82,29 @@ across the threshold. The reference uses local linear rather than a global
 high-order polynomial, following Gelman & Imbens (2019); see also Imbens &
 Lemieux (2008) and Lee & Lemieux (2010).
 
+## Task: `bad-control-recovery`
+
+A deterministic, noiseless cross-section of 120 units. Treatment `d` is assigned
+*orthogonally* to a pre-treatment covariate `x` (no omitted-variable
+confounding), and a mediator `m` sits on the path `d -> m -> y`. The data ships
+`y0`/`y1` potential-outcome columns the estimators never read, so the checker
+recomputes the true total effect as `mean(y1 - y0)`.
+
+| Quantity | Value | Meaning |
+|---|---:|---|
+| True total effect of `d` | **2.500** | `mean(y1 - y0)`, by construction (0.5 direct + 2.0 through `m`). |
+| `y ~ d` (naive) | **2.500** | Unbiased here — treatment is unconfounded. |
+| `y ~ d + x` (good control) | **2.500** | Adjusting for the pre-treatment covariate is harmless. |
+| `y ~ d + x + m` (bad control) | **0.500** | Conditioning on the mediator collapses to the *direct* effect — biased. |
+
+A pipeline that handles controls correctly recovers the total effect when
+adjusting only for pre-treatment covariates, and recognizes that adding the
+post-treatment mediator biases the estimate (it does not headline the 0.5 as the
+treatment effect). This is the good/bad-controls lesson of Cinelli, Forney &
+Pearl (2022) and Angrist & Pischke's *Mostly Harmless Econometrics*: the issue
+is not that all post-treatment variables are bad, but that conditioning on a
+descendant of the treatment changes the estimand.
+
 ## What makes the golds trustworthy
 
 The checker **recomputes** the data-derived golds (imbalance count, the true

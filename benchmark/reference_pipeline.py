@@ -18,6 +18,7 @@ import lalonde  # noqa: E402
 import card  # noqa: E402
 import simdid  # noqa: E402
 import rdd  # noqa: E402
+import badcontrol  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 CAND = Path(__file__).resolve().parent / "candidates"
@@ -103,12 +104,31 @@ def rdd_candidate(write_missing_data: bool = True) -> dict:
     }
 
 
+def badcontrol_candidate(write_missing_data: bool = True) -> dict:
+    data_path = ROOT / "benchmark" / "data" / "sim-badcontrol.csv"
+    if not data_path.exists():
+        if not write_missing_data:
+            raise FileNotFoundError(data_path)
+        badcontrol.write_csv(data_path)
+    rows = badcontrol.load(data_path)
+    return {
+        "task": "bad-control-recovery",
+        "method": "y~d (naive) vs y~d+x (good pre-treatment control) vs y~d+x+m (bad post-treatment mediator control)",
+        "n": len(rows),
+        "true_total": round(badcontrol.true_total(rows), 4),
+        "naive_effect": round(badcontrol.naive_effect(rows), 4),
+        "good_control_effect": round(badcontrol.good_control_effect(rows), 4),
+        "bad_control_effect": round(badcontrol.bad_control_effect(rows), 4),
+    }
+
+
 def reference_candidates(write_missing_data: bool = True) -> list[tuple[Path, dict]]:
     return [
         (CAND / "reference-ols" / "results.json", lalonde_candidate()),
         (CAND / "reference-iv" / "results.json", card_candidate()),
         (CAND / "reference-did" / "results.json", did_candidate(write_missing_data)),
         (CAND / "reference-rd" / "results.json", rdd_candidate(write_missing_data)),
+        (CAND / "reference-badcontrol" / "results.json", badcontrol_candidate(write_missing_data)),
     ]
 
 
@@ -130,6 +150,11 @@ def print_summary(payloads: list[tuple[Path, dict]]) -> None:
     print(
         f"  sharp RD: naive jump {rc['naive_jump']} -> local-linear {rc['local_att']} "
         f"(true {rc['true_tau']})"
+    )
+    bc = by_task["bad-control-recovery"]
+    print(
+        f"  bad control: good {bc['good_control_effect']} -> bad/mediator {bc['bad_control_effect']} "
+        f"(true total {bc['true_total']})"
     )
 
 

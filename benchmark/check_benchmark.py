@@ -34,12 +34,14 @@ import lalonde  # noqa: E402
 import card  # noqa: E402
 import simdid  # noqa: E402
 import rdd  # noqa: E402
+import badcontrol  # noqa: E402
 
 TASKS_DIR = Path(__file__).resolve().parent / "tasks"
 CANDIDATES_DIR = Path(__file__).resolve().parent / "candidates"
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
 SUPPORTED_TASK_IDS = {
+    "bad-control-recovery",
     "card-iv-recovery",
     "did-staggered-recovery",
     "lalonde-recovery",
@@ -97,12 +99,14 @@ CHECK_NUMERIC_FIELDS = {
     "value_near": ("expected", "tol"),
 }
 CROSS_CHECK_NUMERIC_FIELDS = {
+    "bad-control-recovery": ("tol",),
     "card-iv-recovery": ("tol", "f_tol"),
     "did-staggered-recovery": ("tol",),
     "lalonde-recovery": ("naive_tol", "smd_tol"),
     "rdd-recovery": ("tol",),
 }
 CANDIDATE_NUMERIC_FIELDS = {
+    "bad-control-recovery": ("true_total", "naive_effect", "good_control_effect", "bad_control_effect"),
     "card-iv-recovery": ("ols_return", "iv_return", "first_stage_F", "first_stage_coef"),
     "did-staggered-recovery": ("true_att", "twfe_att", "cs_att"),
     "lalonde-recovery": ("naive_att", "adjusted_att"),
@@ -338,6 +342,16 @@ def compute_truth(task: dict) -> dict:
             "global_att": rdd.global_att(rows),
             "local_att": rdd.local_att(rows),
         }
+    if task["id"] == "bad-control-recovery":
+        data = ROOT / task["data"]
+        rows = badcontrol.load(data)
+        return {
+            "n": len(rows),
+            "true_total": badcontrol.true_total(rows),
+            "naive_effect": badcontrol.naive_effect(rows),
+            "good_control_effect": badcontrol.good_control_effect(rows),
+            "bad_control_effect": badcontrol.bad_control_effect(rows),
+        }
     raise ValueError(f"unknown task {task['id']}")
 
 
@@ -469,6 +483,14 @@ def grade(task: dict, candidate: dict, truth: dict) -> list[dict]:
                 rt = candidate.get("true_tau")
                 if rt is not None and abs(rt - truth["true_tau"]) > g["tol"]:
                     problems.append(f"true_tau {rt} vs true {truth['true_tau']:.4f}")
+            elif task["id"] == "bad-control-recovery":
+                for field in ("naive_effect", "good_control_effect", "bad_control_effect"):
+                    rv = candidate.get(field)
+                    if rv is None or abs(rv - truth[field]) > g["tol"]:
+                        problems.append(f"{field} {rv} vs true {truth[field]:.4f}")
+                rt = candidate.get("true_total")
+                if rt is not None and abs(rt - truth["true_total"]) > g["tol"]:
+                    problems.append(f"true_total {rt} vs true {truth['true_total']:.4f}")
             passed = not problems
             detail = "reported numbers match data" if passed else "; ".join(problems[:3])
 

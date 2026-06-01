@@ -15,6 +15,7 @@ lalonde = load_module("benchmark/lib/lalonde.py", "aers_lalonde")
 card = load_module("benchmark/lib/card.py", "aers_card")
 simdid = load_module("benchmark/lib/simdid.py", "aers_simdid")
 rdd = load_module("benchmark/lib/rdd.py", "aers_rdd")
+badcontrol = load_module("benchmark/lib/badcontrol.py", "aers_badcontrol")
 check_benchmark = load_module("benchmark/check_benchmark.py", "aers_check_benchmark")
 reference_pipeline = load_module("benchmark/reference_pipeline.py", "aers_reference_pipeline")
 toml_compat = load_module("scripts/toml_compat.py", "aers_toml_compat")
@@ -23,6 +24,7 @@ DATA = ROOT / "demo-notebooks" / "_lalonde_data.csv"
 CARD_DATA = ROOT / "demo-StatsPAI-skill" / "data" / "card.csv"
 SIMDID_DATA = ROOT / "benchmark" / "data" / "sim-staggered-did.csv"
 RDD_DATA = ROOT / "benchmark" / "data" / "sim-rdd.csv"
+BADCONTROL_DATA = ROOT / "benchmark" / "data" / "sim-badcontrol.csv"
 
 
 class TestLalondeNumbers(unittest.TestCase):
@@ -544,6 +546,60 @@ class TestRddGrading(unittest.TestCase):
         graded = check_benchmark.grade(self.task, cand, self.truth)
         req_fail = [g["id"] for g in graded if g["required"] and not g["passed"]]
         self.assertIn("local-recovers-tau", req_fail)
+        self.assertIn("honest-reported-numbers", req_fail)
+
+
+class TestBadControlNumbers(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.rows = badcontrol.load(BADCONTROL_DATA)
+
+    def test_sample_size(self):
+        self.assertEqual(len(self.rows), 120)
+
+    def test_true_total_recomputed_from_potential_outcomes(self):
+        self.assertAlmostEqual(badcontrol.true_total(self.rows), 2.5, delta=0.0001)
+
+    def test_naive_and_good_control_recover_total(self):
+        # Treatment is unconfounded, so both the no-control and the
+        # pre-treatment-control regressions recover the total effect.
+        self.assertAlmostEqual(badcontrol.naive_effect(self.rows), 2.5, delta=0.001)
+        self.assertAlmostEqual(badcontrol.good_control_effect(self.rows), 2.5, delta=0.001)
+
+    def test_bad_control_collapses_to_direct_effect(self):
+        bad = badcontrol.bad_control_effect(self.rows)
+        self.assertAlmostEqual(bad, 0.5, delta=0.001)
+        self.assertGreater(abs(bad - badcontrol.true_total(self.rows)), 0.5)
+
+
+class TestBadControlGrading(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with (ROOT / "benchmark" / "tasks" / "bad-control-recovery.toml").open("rb") as fh:
+            cls.task = toml_compat.load(fh)
+        cls.truth = check_benchmark.compute_truth(cls.task)
+
+    def _good(self):
+        rows = badcontrol.load(BADCONTROL_DATA)
+        return {
+            "true_total": round(badcontrol.true_total(rows), 4),
+            "naive_effect": round(badcontrol.naive_effect(rows), 4),
+            "good_control_effect": round(badcontrol.good_control_effect(rows), 4),
+            "bad_control_effect": round(badcontrol.bad_control_effect(rows), 4),
+        }
+
+    def test_reference_passes(self):
+        graded = check_benchmark.grade(self.task, self._good(), self.truth)
+        self.assertEqual([g["id"] for g in graded if g["required"] and not g["passed"]], [])
+
+    def test_headlining_mediator_adjusted_estimate_fails(self):
+        # A candidate that reports the mediator-adjusted (direct) effect as its
+        # headline good-control estimate contradicts the recomputed data.
+        cand = self._good()
+        cand["good_control_effect"] = cand["bad_control_effect"]
+        graded = check_benchmark.grade(self.task, cand, self.truth)
+        req_fail = [g["id"] for g in graded if g["required"] and not g["passed"]]
+        self.assertIn("good-control-recovers-total", req_fail)
         self.assertIn("honest-reported-numbers", req_fail)
 
 

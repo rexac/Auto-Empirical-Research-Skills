@@ -31,6 +31,7 @@ The numeric benchmark is dependency-free and recomputes gold values every run.
 | `card-iv-recovery` | IV result is easy to misreport or headline without instrument-strength evidence. | Recover positive OLS, IV > OLS, report first-stage F, and match recomputed OLS/IV/F values. |
 | `did-staggered-recovery` | Plain TWFE is biased under staggered timing with dynamic heterogeneous effects. | Report biased TWFE as diagnostic, recover true ATT with group-time DID, and match recomputed simulated-panel values. |
 | `rdd-recovery` | A naive across-cutoff mean difference confounds the jump with the running-variable trend. | Surface the biased naive jump, recover the true cutoff effect with a local-linear (running-variable-controlled) fit, and match recomputed RD estimands. |
+| `bad-control-recovery` | Conditioning on a post-treatment mediator biases the estimate toward the direct effect (a "bad control"). | Recover the total effect with pre-treatment controls only, surface the mediator-adjusted estimate as biased, and match recomputed regression estimands. |
 
 The benchmark deliberately checks reported numbers against recomputed truth. A
 candidate cannot pass by inventing a clean balance table, a convenient first
