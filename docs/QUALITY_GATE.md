@@ -31,7 +31,8 @@ For a high-level map of the repository trust surface, see [`docs/TRUST.md`](TRUS
 - Tracked-file hygiene rejects accidental `.DS_Store`, `__pycache__`, `.pyc`, and tool-cache commits.
 - Vendored `skills/**/SKILL.md` frontmatter is audited and summarized.
 - AERS-maintained local Markdown links resolve.
-- GitHub Actions workflows use explicit permissions and non-persistent checkout credentials.
+- GitHub Actions workflows use explicit permissions, non-persistent checkout credentials,
+  pinned external action refs, and no write permissions on untrusted PR workflows.
 - The generated catalog is current.
 - Generated provenance and skill-audit reports are current.
 - Flagship eval prompt docs are current and every referenced skill path exists.

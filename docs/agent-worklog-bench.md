@@ -59,7 +59,7 @@ Every commit on this branch keeps `make check` green
 Latest verification:
 
 ```bash
-python3 -m unittest discover -s tests -p 'test_*.py'  # 133 tests OK
+python3 -m unittest discover -s tests -p 'test_*.py'  # 140 tests OK
 python3 eval-harness/run_evals.py \
   --min-scenarios 14 --min-auto-checks 66 \
   --expect-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity,writing-compliance,writing-style
