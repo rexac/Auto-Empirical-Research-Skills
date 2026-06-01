@@ -8,6 +8,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote
@@ -117,7 +118,7 @@ def iter_nonstandard_skill_files() -> list[Path]:
     return sorted(paths)
 
 
-def normalize_markdown_target(raw_target: str) -> str | None:
+def parse_markdown_target(raw_target: str) -> tuple[str, str] | None:
     target = raw_target.strip()
     if not target:
         return None
@@ -127,13 +128,24 @@ def normalize_markdown_target(raw_target: str) -> str | None:
         target = target.split()[0]
 
     target = target.strip()
-    if not target or target.startswith("#"):
+    if not target:
         return None
     if re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", target):
         return None
     if target.startswith("//"):
         return None
-    return unquote(target.split("#", 1)[0])
+    path, _, fragment = target.partition("#")
+    if not path and not fragment:
+        return None
+    return unquote(path), unquote(fragment)
+
+
+def normalize_markdown_target(raw_target: str) -> str | None:
+    parsed = parse_markdown_target(raw_target)
+    if parsed is None:
+        return None
+    path, _fragment = parsed
+    return path
 
 
 def iter_project_markdown() -> list[Path]:
@@ -151,19 +163,22 @@ def iter_project_markdown() -> list[Path]:
 def validate_markdown_links() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
+    anchors_by_path: dict[Path, set[str]] = {}
+    repo_root = ROOT.resolve()
 
     for md_path in iter_project_markdown():
         text = read_text(md_path)
         for match in MARKDOWN_LINK_RE.finditer(text):
             if is_in_fenced_code(text, match.start()):
                 continue
-            target = normalize_markdown_target(match.group(1))
-            if target is None:
+            parsed = parse_markdown_target(match.group(1))
+            if parsed is None:
                 continue
+            target, fragment = parsed
 
-            resolved = (md_path.parent / target).resolve()
+            resolved = md_path.resolve() if not target else (md_path.parent / target).resolve()
             try:
-                resolved.relative_to(ROOT)
+                resolved.relative_to(repo_root)
             except ValueError:
                 warnings.append(f"{rel(md_path)} links outside repo: {target}")
                 continue
@@ -171,8 +186,59 @@ def validate_markdown_links() -> tuple[list[str], list[str]]:
             if not resolved.exists():
                 line_no = text.count("\n", 0, match.start()) + 1
                 errors.append(f"{rel(md_path)}:{line_no} missing local link: {target}")
+                continue
+
+            if fragment and resolved.suffix.lower() in {".md", ".markdown"}:
+                anchors = anchors_by_path.setdefault(resolved, markdown_anchors(read_text(resolved)))
+                if normalize_anchor_fragment(fragment) not in anchors:
+                    line_no = text.count("\n", 0, match.start()) + 1
+                    errors.append(
+                        f"{rel(md_path)}:{line_no} missing markdown anchor: "
+                        f"{target or rel(md_path)}#{fragment}"
+                    )
 
     return errors, warnings
+
+
+def normalize_anchor_fragment(fragment: str) -> str:
+    return fragment.strip().lstrip("#").lower()
+
+
+def github_heading_slug(heading: str) -> str:
+    text = heading.strip()
+    text = re.sub(r"\s+#+\s*$", "", text)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"!\[([^\]]*)]\([^)]+\)", r"\1", text)
+    text = re.sub(r"\[([^\]]+)]\([^)]+\)", r"\1", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = text.lower()
+
+    chars: list[str] = []
+    for char in text:
+        category = unicodedata.category(char)
+        if category.startswith("M"):
+            continue
+        if char.isspace():
+            chars.append("-")
+        elif category[0] in {"P", "S"} and char not in {"-", "_"}:
+            continue
+        else:
+            chars.append(char)
+    return "".join(chars)
+
+
+def markdown_anchors(text: str) -> set[str]:
+    anchors = {"top"}
+    seen: Counter[str] = Counter()
+    for line in text.splitlines():
+        match = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+        if not match:
+            continue
+        base = github_heading_slug(match.group(2))
+        count = seen[base]
+        seen[base] += 1
+        anchors.add(base if count == 0 else f"{base}-{count}")
+    return anchors
 
 
 def is_in_fenced_code(text: str, offset: int) -> bool:

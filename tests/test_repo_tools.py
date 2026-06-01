@@ -103,6 +103,26 @@ class TestMarkdownLinkValidation(unittest.TestCase):
         self.assertFalse(validate_repo.is_in_fenced_code(text, text.index("[ok]")))
         self.assertTrue(validate_repo.is_in_fenced_code(text, text.index("[example]")))
 
+    def test_github_heading_slug_examples(self):
+        cases = {
+            "🆕 Changelog": "-changelog",
+            "🚨 Anti-AIGC Detection & De-AI Academic Writing (Highlighted)": (
+                "-anti-aigc-detection--de-ai-academic-writing-highlighted"
+            ),
+            "🚨 降 AIGC 检测率 & 学术去 AI 味（重点推荐）": (
+                "-降-aigc-检测率--学术去-ai-味重点推荐"
+            ),
+            "Skill 聚合平台与发现工具": "skill-聚合平台与发现工具",
+        }
+        for heading, slug in cases.items():
+            with self.subTest(heading=heading):
+                self.assertEqual(validate_repo.github_heading_slug(heading), slug)
+
+    def test_markdown_anchors_include_duplicate_suffixes(self):
+        anchors = validate_repo.markdown_anchors("# Methods\n## Methods\n")
+        self.assertIn("methods", anchors)
+        self.assertIn("methods-1", anchors)
+
     def test_code_fence_links_are_ignored_for_expansion_doc(self):
         errors, _ = validate_repo.validate_markdown_links()
         self.assertFalse(
@@ -112,6 +132,53 @@ class TestMarkdownLinkValidation(unittest.TestCase):
                 if "EMPIRICAL_SKILLS_EXPANSION_2026-06.md" in error
             ]
         )
+
+    def test_missing_markdown_anchor_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = validate_repo.Path(tmp)
+            readme = root / "README.md"
+            readme.write_text(
+                "# Existing Heading\n"
+                "[ok](#existing-heading)\n"
+                "[bad](#missing-heading)\n"
+                "```markdown\n"
+                "[ignored](#also-missing)\n"
+                "```\n",
+                encoding="utf-8",
+            )
+
+            old_root = validate_repo.ROOT
+            try:
+                validate_repo.ROOT = root
+                errors, warnings = validate_repo.validate_markdown_links()
+            finally:
+                validate_repo.ROOT = old_root
+
+        self.assertEqual(warnings, [])
+        self.assertTrue(any("missing-heading" in error for error in errors))
+        self.assertFalse(any("also-missing" in error for error in errors))
+
+    def test_cross_document_markdown_anchor_is_validated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = validate_repo.Path(tmp)
+            docs = root / "docs"
+            docs.mkdir()
+            (docs / "CHOOSING.md").write_text(
+                "[methods](TAXONOMY.md#methods)\n[bad](TAXONOMY.md#missing)\n",
+                encoding="utf-8",
+            )
+            (docs / "TAXONOMY.md").write_text("# Taxonomy\n## Methods\n", encoding="utf-8")
+
+            old_root = validate_repo.ROOT
+            try:
+                validate_repo.ROOT = root
+                errors, warnings = validate_repo.validate_markdown_links()
+            finally:
+                validate_repo.ROOT = old_root
+
+        self.assertEqual(warnings, [])
+        self.assertTrue(any("TAXONOMY.md#missing" in error for error in errors))
+        self.assertFalse(any("TAXONOMY.md#methods" in error for error in errors))
 
 
 class TestLocalAndCiGates(unittest.TestCase):
