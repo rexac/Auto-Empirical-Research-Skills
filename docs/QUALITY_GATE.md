@@ -16,16 +16,21 @@ make validate
 - `catalog/skills.json` for machines, search UIs, and downstream indexes.
 - `catalog/provenance.json` for source, license, and commercial-use metadata.
 - `catalog/skill-audit.json` for non-blocking vendored skill hygiene metadata.
+- `docs/EVALS.md` from `evals/flagship-evals.json` for flagship regression prompts.
 - `docs/SKILL_CATALOG.md` for GitHub browsing.
 - `docs/LICENSE_AUDIT.md` and `docs/SKILL_AUDIT.md` for reviewer-facing audits.
+
+For multi-agent work, follow [`docs/AGENT_COORDINATION.md`](AGENT_COORDINATION.md). For recurring maintainer work, follow [`docs/MAINTAINER_PLAYBOOK.md`](MAINTAINER_PLAYBOOK.md).
 
 `make validate` checks:
 
 - Required project files exist.
 - Vendored `skills/**/SKILL.md` frontmatter is audited and summarized.
 - AERS-maintained local Markdown links resolve.
+- GitHub Actions workflows use explicit permissions and non-persistent checkout credentials.
 - The generated catalog is current.
 - Generated provenance and skill-audit reports are current.
+- Flagship eval prompt docs are current and every referenced skill path exists.
 
 ## Review Rules
 
@@ -51,4 +56,6 @@ Run `make audit` when you want the warning stream in the terminal.
 
 ## CI
 
-`.github/workflows/validate-catalog.yml` runs the same checks on pushes and pull requests. This makes catalog drift visible whenever a contributor adds, removes, or moves skills.
+`.github/workflows/validate-catalog.yml` runs `make validate` on pushes and pull requests. This makes catalog, provenance, audit, eval-doc, workflow-policy, and local-link drift visible whenever a contributor adds, removes, or moves skills.
+
+Dependabot checks GitHub Actions updates weekly via `.github/dependabot.yml`. `.github/workflows/scorecard.yml` runs OpenSSF Scorecard on `main` and uploads SARIF to GitHub code scanning.

@@ -51,6 +51,7 @@
 [![Hooks Audited](https://img.shields.io/badge/hook%20scripts-40%2B%20audited-blue)](SECURITY-SCAN-REPORT.md)
 [![Zero Threats](https://img.shields.io/badge/threats%20found-0-brightgreen)](SECURITY-SCAN-REPORT.md)
 [![Validate catalog](https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/actions/workflows/validate-catalog.yml/badge.svg)](https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/actions/workflows/validate-catalog.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/brycewang-stanford/Auto-Empirical-Research-Skills/badge)](https://scorecard.dev/viewer/?uri=github.com/brycewang-stanford/Auto-Empirical-Research-Skills)
 
 **The Definitive Collection of AI Agent Skills for Empirical Research — 119 GitHub Repos / 23,000+ Skills**
 
@@ -82,8 +83,10 @@ This repository is the **Agent Skills landscape** we compiled while building CoP
 - Browse the generated local catalog: [`docs/SKILL_CATALOG.md`](docs/SKILL_CATALOG.md)
 - Copy a ready-to-run empirical workflow: [`docs/GOLDEN_WORKFLOWS.md`](docs/GOLDEN_WORKFLOWS.md)
 - See flagship demos: [`docs/demos/`](docs/demos/)
+- Run flagship regression prompts: [`docs/EVALS.md`](docs/EVALS.md)
 - Install or copy skills into an agent runtime: [`docs/INSTALL.md`](docs/INSTALL.md)
 - Use the machine-readable index: [`catalog/skills.json`](catalog/skills.json)
+- Coordinate parallel agent work: [`docs/AGENT_COORDINATION.md`](docs/AGENT_COORDINATION.md)
 - Check provenance and license risk: [`docs/LICENSE_AUDIT.md`](docs/LICENSE_AUDIT.md)
 - Check contribution and validation rules: [`docs/QUALITY_GATE.md`](docs/QUALITY_GATE.md) · [`docs/SKILL_SUBMISSION_GUIDE.md`](docs/SKILL_SUBMISSION_GUIDE.md)
 - See the repo audit and improvement plan: [`docs/REPO_AUDIT_2026-05-31.md`](docs/REPO_AUDIT_2026-05-31.md) · [`docs/ROADMAP.md`](docs/ROADMAP.md)
