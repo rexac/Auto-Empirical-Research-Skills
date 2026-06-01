@@ -186,6 +186,7 @@ class TestLocalAndCiGates(unittest.TestCase):
         text = (ROOT / ".github" / "workflows" / "quality-evals.yml").read_text(
             encoding="utf-8"
         )
+        self.assertIn("make python-compat", text)
         self.assertIn("python3 benchmark/check_benchmark.py --lint", text)
         self.assertIn("python3 benchmark/reference_pipeline.py --check", text)
         self.assertNotIn("python3 benchmark/reference_pipeline.py\n", text)
@@ -196,8 +197,16 @@ class TestLocalAndCiGates(unittest.TestCase):
         self.assertIn("python3 benchmark/check_benchmark.py --lint", text)
         self.assertIn("python3 benchmark/reference_pipeline.py --check", text)
         self.assertNotIn("python3 benchmark/reference_pipeline.py >/dev/null", text)
+        self.assertIn("aers-python-compat", text)
+        self.assertIn("make python-compat", text)
         self.assertIn("aers-tracked-file-hygiene", text)
         self.assertIn("python3 scripts/check-repo-hygiene.py", text)
+
+    def test_make_check_includes_python_compatibility_compile(self):
+        text = (ROOT / "Makefile").read_text(encoding="utf-8")
+        self.assertIn("python-compat:", text)
+        self.assertIn("python3 -m py_compile scripts/*.py", text)
+        self.assertRegex(text, r"check:\s+validate\s+python-compat\s+test")
 
     def test_maintainer_docs_point_to_full_local_gate(self):
         docs = [

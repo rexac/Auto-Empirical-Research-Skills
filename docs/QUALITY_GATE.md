@@ -37,7 +37,7 @@ For a high-level map of the repository trust surface, see [`docs/TRUST.md`](TRUS
 - Generated provenance and skill-audit reports are current.
 - Flagship eval prompt docs are current and every referenced skill path exists.
 
-`make check` adds the stdlib unit tests, executable eval-harness lint,
+`make check` adds Python tooling compilation, the stdlib unit tests, executable eval-harness lint,
 example-candidate grading smoke test, and numeric benchmark. The eval-harness
 lint gate enforces minimum scenario count, auto-check count, and category
 coverage so accidental eval deletion fails locally and in CI. The eval smoke
@@ -48,8 +48,8 @@ benchmark after `benchmark/reference_pipeline.py --check` verifies committed
 reference candidates without rewriting them. The numeric checker uses `--strict
 --fail-on-partial --fail-on-orphan-results` so stale generated scorecards from
 removed or renamed tasks do not masquerade as current coverage. The GitHub
-Actions quality workflow and local pre-commit hooks use the same non-writing
-gates.
+Actions quality workflow and local pre-commit hooks use the same Python
+compatibility and non-writing gates.
 
 ## Review Rules
 

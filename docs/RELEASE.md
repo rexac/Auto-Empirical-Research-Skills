@@ -22,7 +22,7 @@ vYYYY.MM.patchN
 git fetch origin
 make catalog
 make check
-python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py
+make python-compat
 git diff --check
 make hygiene
 ```
@@ -52,7 +52,7 @@ Then review:
 ## Quality Checks
 
 - `make check`:
-- `python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py`:
+- `make python-compat`:
 - `git diff --check`:
 - `make hygiene`:
 - External-link workflow:

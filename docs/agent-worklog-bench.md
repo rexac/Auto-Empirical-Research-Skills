@@ -59,7 +59,7 @@ Every commit on this branch keeps `make check` green
 Latest verification:
 
 ```bash
-python3 -m unittest discover -s tests -p 'test_*.py'  # 144 tests OK
+python3 -m unittest discover -s tests -p 'test_*.py'  # 145 tests OK
 python3 eval-harness/run_evals.py \
   --min-scenarios 14 --min-auto-checks 66 \
   --expect-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity,writing-compliance,writing-style
@@ -70,7 +70,7 @@ python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example \
 python3 benchmark/check_benchmark.py --lint
 python3 benchmark/reference_pipeline.py --check
 python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results
-python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py
+make python-compat
 python3 scripts/check-repo-hygiene.py
 git diff --check
 make check

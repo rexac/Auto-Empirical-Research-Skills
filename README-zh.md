@@ -95,7 +95,7 @@
 ```bash
 make catalog  # 重新生成 catalog、provenance、audit、enrichment
 make validate # freshness + 本地链接/frontmatter 检查
-make check    # 完整 gate：validate + 单元测试 + eval lint + benchmark
+make check    # 完整 gate：validate + Python 编译 + 单元测试 + eval lint + benchmark
 ```
 
 ### 30 秒选工作流

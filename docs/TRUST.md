@@ -12,6 +12,7 @@ unsafe runtime advice before a skill answer reaches a researcher.
 | Workflow policy | [`scripts/validate-workflows.py`](../scripts/validate-workflows.py) | GitHub Actions without explicit permissions, persistent checkout credentials, untrusted-PR write permissions, floating action refs, `pull_request_target`, and pipe-to-shell workflow patterns. |
 | Eval harness | [`eval-harness/`](../eval-harness/) | Rubric-level failures in flagship skill answers: weak-IV false reassurance, staggered-DID TWFE misuse, AER compliance gaps, citation fabrication, and runtime-safety mistakes. |
 | Numeric benchmark | [`benchmark/`](../benchmark/) | Data-derived empirical results that must be recovered from real or deterministic datasets, with anti-fabrication cross-checks. |
+| Python compatibility | [`Makefile`](../Makefile) | Syntax drift in repo-owned Python tooling across the Python 3.9/3.12 CI matrix. |
 | Unit tests | [`tests/`](../tests/) | Parser behavior, scenario validation, benchmark truth computations, and grading edge cases. |
 
 Run all local trust checks with:

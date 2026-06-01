@@ -19,6 +19,12 @@ repos:
         language: system
         pass_filenames: false
         files: ^(tests/|eval-harness/|benchmark/|scripts/)
+      - id: aers-python-compat
+        name: AERS Python tooling compile
+        entry: make python-compat
+        language: system
+        pass_filenames: false
+        files: ^(tests/|eval-harness/|benchmark/|scripts/|Makefile)
       - id: aers-benchmark
         name: AERS benchmark (strict)
         entry: bash -c 'python3 benchmark/check_benchmark.py --lint >/dev/null && python3 benchmark/reference_pipeline.py --check >/dev/null && python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results >/dev/null'

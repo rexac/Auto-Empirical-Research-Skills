@@ -1,4 +1,4 @@
-.PHONY: catalog validate check audit hygiene clean external-links external-links-dry evals eval-harness eval-smoke benchmark-lint benchmark benchmark-refresh test
+.PHONY: catalog validate check audit hygiene clean external-links external-links-dry evals eval-harness eval-smoke benchmark-lint benchmark benchmark-refresh test python-compat
 
 catalog:
 	python3 scripts/build-provenance.py
@@ -52,8 +52,14 @@ benchmark-refresh:
 test:
 	python3 -m unittest discover -s tests -p "test_*.py"
 
+# Compile all repo-owned Python tooling with the active interpreter. In CI this
+# runs on the Python 3.9/3.12 matrix and catches syntax drift in scripts that
+# are not imported by the unit suite.
+python-compat:
+	python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py
+
 # Full local gate: everything a PR should pass.
-check: validate test eval-harness eval-smoke benchmark-lint benchmark
+check: validate python-compat test eval-harness eval-smoke benchmark-lint benchmark
 
 audit:
 	python3 scripts/validate-repo.py --audit

@@ -97,7 +97,7 @@ This repository is the **Agent Skills landscape** we compiled while building CoP
 ```bash
 make catalog     # regenerate catalog, provenance, audit, enrichment
 make validate    # freshness + link/frontmatter checks
-make check       # full gate: validate + unit tests + eval lint + benchmark
+make check       # full gate: validate + Python compile + unit tests + eval lint + benchmark
 ```
 
 ### Pick a Workflow in 30 Seconds
