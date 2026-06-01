@@ -76,18 +76,18 @@ triggers:
 
 # StatsPAI: Agent-Native Causal Inference & AER-Style Empirical Workflow
 
-StatsPAI is the agent-native Python package for causal inference and applied econometrics: one `import statspai as sp`, 900+ functions behind a self-describing API, and `CausalResult` objects that export to LaTeX / Word / Excel / BibTeX.
+StatsPAI is a validation-tiered Python package for causal inference and applied econometrics: one `import statspai as sp`, 1,000+ registered functions behind a self-describing API, and mature estimator result objects that commonly export to LaTeX / Word / Excel / BibTeX.
 
-This skill drives StatsPAI through the **canonical pipeline of an applied AER empirical paper**. Each step maps to a section of the published paper and emits a paper-ready artifact (Table 1, event-study figure, Table 2 main results, robustness panel, replication stamp).
+This skill drives StatsPAI through the **canonical pipeline of an applied AER empirical paper**. Each step emits a paper-ready artifact (Table 1, event-study figure, Table 2 main results, robustness panel, replication stamp).
 
 - **Source**: https://github.com/brycewang-stanford/StatsPAI
 - **Install**: `pip install statspai` (>= 1.6)
-- **Paper**: submitted to JOSS (under review)
+- **Paper**: JOSS submission under review; JSS materials in `Paper-JSS/README.md` and `docs/jss_source_audit_dossier.md`
 
 ## Why for Agents
 
-1. **Self-describing**: `sp.list_functions()` / `sp.describe_function(name)` / `sp.function_schema(name)` — every public symbol is discoverable without doc lookup.
-2. **Unified result**: every estimator returns `CausalResult` with `.summary()`, `.plot()`, `.diagnostics`, `.to_latex()`, `.to_word()`, `.cite()`.
+1. **Self-describing**: `sp.list_functions()` / `sp.describe_function(name)` / `sp.function_schema(name)` — registered symbols are discoverable without doc lookup.
+2. **Structured results**: mature estimators return result objects with methods such as `.summary()`, `.plot()`, `.diagnostics`, `.to_latex()`, `.to_word()`, `.cite()` when supported.
 3. **One import, full pipeline**: data contract → Table 1 → estimand-first DSL → identification graphs → main table → heterogeneity → mechanisms → robustness → replication package.
 4. **Estimand-first**: `sp.causal_question(...).identify()` forces the "DID vs RD vs IV?" decision *before* estimation, with the identifying assumption written down — the way a referee expects to read it.
 
@@ -232,7 +232,7 @@ def setup_plot(retina: bool = True) -> None:
     #    savefig.dpi controls .png exports. Set both — they are independent.
     if retina:
         mpl.rcParams["figure.dpi"]  = 144   # 2× default — sharp on Retina/HiDPI
-        mpl.rcParams["savefig.dpi"] = 300   # publication-grade PNG (AER house norm)
+        mpl.rcParams["savefig.dpi"] = 300   # manuscript/export PNG (AER house norm)
         # Jupyter inline retina backend (no-op outside IPython):
         try:
             from IPython import get_ipython
@@ -1403,7 +1403,7 @@ For pyfixest-style native output, `sp.etable(*models, ...)` is the alternative; 
 
 ## §A. Epidemiology / public health pipeline (Mode A)
 
-> **Convention**: STROBE (observational) / TRIPOD-AI (prediction) reporting. The modern epi gold standard is **target-trial emulation** (Hernán & Robins) — write the protocol of the hypothetical RCT first, then emulate it with observational data using a doubly-robust estimator. Outcomes are commonly **risk differences, risk ratios, hazard ratios, or restricted mean survival time**, not just OLS coefficients. The skill mirrors the AER 8-section flow but swaps the Step-4 estimator stack and adds survival/MR-specific reporting rows.
+> **Convention**: STROBE (observational) / TRIPOD-AI (prediction) reporting. A modern epidemiology reference design is **target-trial emulation** (Hernán & Robins): write the protocol of the hypothetical RCT first, then emulate it with observational data using a doubly-robust estimator. Outcomes are commonly **risk differences, risk ratios, hazard ratios, or restricted mean survival time**, not just OLS coefficients. The skill mirrors the AER 8-section flow but swaps the Step-4 estimator stack and adds survival/MR-specific reporting rows.
 
 Running example: `statin_initiation → 5-yr_MACE` in an EHR cohort (`patient_id / index_date / age / sex / ldl_baseline / comorbidity_index / followup_days / event`). The exposure is time-varying, confounders are time-varying, and competing-risk censoring matters — the canonical setting where naïve OLS / Cox-with-baseline-adjustment is biased.
 
@@ -1485,7 +1485,7 @@ gcomp = sp.gformula(cohort, y="mace", treat="statin_initiation",
                     time_varying=["ldl_current"],
                     intervention="always_treat", reference="never_treat")
 
-# (3) TMLE — doubly robust, the modern gold standard.
+# (3) TMLE -- doubly robust targeted learning estimator.
 # Pass an sklearn-style library list for nuisance learners; statspai stacks them
 # internally via SuperLearner. Keep `outcome_library` and `propensity_library`
 # explicit so the reviewer can see your nuisance choices.
