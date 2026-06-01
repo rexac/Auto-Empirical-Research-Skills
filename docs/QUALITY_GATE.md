@@ -80,6 +80,13 @@ Run `make clean` to remove local platform and Python cache artifacts such as
 `.DS_Store`, `__pycache__`, `.pyc`, `.pyo`, `.pytest_cache`, `.ruff_cache`, and
 `.mypy_cache`.
 
+Run `make external-links-dry` to check maintained-doc external links without
+writing `catalog/external-link-check.json`. The scheduled GitHub Action runs
+`make external-links` and uploads that JSON report as an artifact. Markdown links
+inside fenced code blocks are skipped by default because they are examples, not
+rendered links; use `python3 scripts/check-links.py --include-code-fences` for
+a stricter audit.
+
 ## CI
 
 `.github/workflows/validate-catalog.yml` runs `make validate` on pushes and pull requests. This makes catalog, provenance, audit, eval-doc, workflow-policy, and local-link drift visible whenever a contributor adds, removes, or moves skills.

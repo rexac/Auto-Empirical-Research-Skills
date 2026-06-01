@@ -1,4 +1,4 @@
-.PHONY: catalog validate check audit hygiene clean evals eval-harness eval-smoke benchmark-lint benchmark benchmark-refresh test
+.PHONY: catalog validate check audit hygiene clean external-links external-links-dry evals eval-harness eval-smoke benchmark-lint benchmark benchmark-refresh test
 
 catalog:
 	python3 scripts/build-provenance.py
@@ -67,3 +67,9 @@ clean:
 	find . -path ./.git -prune -o -name __pycache__ -type d -prune -exec rm -rf {} +
 	find . -path ./.git -prune -o \( -name '*.pyc' -o -name '*.pyo' \) -type f -exec rm -f {} +
 	rm -rf .pytest_cache .ruff_cache .mypy_cache
+
+external-links:
+	python3 scripts/check-links.py
+
+external-links-dry:
+	python3 scripts/check-links.py --no-write

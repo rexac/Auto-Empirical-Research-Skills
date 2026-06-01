@@ -21,9 +21,10 @@ vYYYY.MM.patchN
 ```bash
 git fetch origin
 make catalog
-make validate
-python3 -m py_compile scripts/*.py
+make check
+python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py
 git diff --check
+make hygiene
 ```
 
 Then review:
@@ -50,9 +51,11 @@ Then review:
 
 ## Quality Checks
 
-- `make validate`:
-- `python3 -m py_compile scripts/*.py`:
+- `make check`:
+- `python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py`:
 - `git diff --check`:
+- `make hygiene`:
+- External-link workflow:
 - OpenSSF Scorecard:
 
 ## Known Follow-Ups
