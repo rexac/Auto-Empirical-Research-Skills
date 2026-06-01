@@ -15,6 +15,7 @@ lalonde = load_module("benchmark/lib/lalonde.py", "aers_lalonde")
 card = load_module("benchmark/lib/card.py", "aers_card")
 simdid = load_module("benchmark/lib/simdid.py", "aers_simdid")
 check_benchmark = load_module("benchmark/check_benchmark.py", "aers_check_benchmark")
+reference_pipeline = load_module("benchmark/reference_pipeline.py", "aers_reference_pipeline")
 toml_compat = load_module("scripts/toml_compat.py", "aers_toml_compat")
 
 DATA = ROOT / "demo-notebooks" / "_lalonde_data.csv"
@@ -231,6 +232,28 @@ class TestBenchmarkSpecValidation(unittest.TestCase):
                     [],
                 )
 
+    def test_benchmark_lint_cli_passes(self):
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(check_benchmark.main(["--lint"]), 0)
+
+    def test_reference_pipeline_check_cli_passes_without_writing(self):
+        before = {
+            path: path.read_text(encoding="utf-8")
+            for path in sorted((ROOT / "benchmark" / "candidates").glob("reference-*/results.json"))
+        }
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(reference_pipeline.main(["--check"]), 0)
+        after = {path: path.read_text(encoding="utf-8") for path in before}
+        self.assertEqual(after, before)
+
+    def test_reference_pipeline_check_detects_stale_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = reference_pipeline.Path(tmp) / "results.json"
+            path.write_text('{"stale": true}\n', encoding="utf-8")
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                code = reference_pipeline.check_outputs([(path, {"task": "example"})])
+        self.assertEqual(code, 1)
+
     def test_candidate_numeric_fields_are_checked(self):
         candidate = {
             "task": "lalonde-recovery",
@@ -300,6 +323,67 @@ class TestBenchmarkSpecValidation(unittest.TestCase):
                 {"lalonde-recovery", "card-iv-recovery"},
             )
             self.assertEqual([path.name for path in orphans], ["old-task.json"])
+
+
+class TestBenchmarkSchema(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        task_schema_path = ROOT / "benchmark" / "schema" / "task.schema.json"
+        candidate_schema_path = ROOT / "benchmark" / "schema" / "candidate.schema.json"
+        cls.task_schema = json.loads(task_schema_path.read_text(encoding="utf-8"))
+        cls.candidate_schema = json.loads(candidate_schema_path.read_text(encoding="utf-8"))
+
+    def test_task_schema_documents_current_required_fields(self):
+        self.assertEqual(
+            self.task_schema["required"],
+            list(check_benchmark.REQUIRED_TASK_FIELDS),
+        )
+        self.assertEqual(
+            self.task_schema["definitions"]["gold"]["required"],
+            list(check_benchmark.REQUIRED_GOLD_FIELDS),
+        )
+
+    def test_task_schema_enums_match_validator(self):
+        props = self.task_schema["properties"]
+        gold_props = self.task_schema["definitions"]["gold"]["properties"]
+
+        self.assertEqual(set(props["id"]["enum"]), check_benchmark.SUPPORTED_TASK_IDS)
+        self.assertEqual(set(gold_props["check"]["enum"]), check_benchmark.KNOWN_CHECKS)
+        self.assertEqual(set(gold_props["expected_sign"]["enum"]), {"negative", "positive"})
+
+    def test_task_schema_patterns_match_validator(self):
+        props = self.task_schema["properties"]
+        self.assertEqual(
+            props["reference_candidate"]["pattern"],
+            check_benchmark.CANDIDATE_DIR_RE.pattern,
+        )
+
+    def test_candidate_schema_task_enum_matches_validator(self):
+        props = self.candidate_schema["properties"]
+        self.assertEqual(set(props["task"]["enum"]), check_benchmark.SUPPORTED_TASK_IDS)
+
+    def test_candidate_schema_numeric_fields_match_validator(self):
+        props = self.candidate_schema["properties"]
+        documented_numeric_fields = {
+            field
+            for fields in check_benchmark.CANDIDATE_NUMERIC_FIELDS.values()
+            for field in fields
+        }
+        self.assertLessEqual(documented_numeric_fields, set(props))
+        for field in documented_numeric_fields:
+            self.assertEqual(props[field]["type"], "number")
+
+    def test_candidate_schema_numeric_map_fields_match_validator(self):
+        props = self.candidate_schema["properties"]
+        documented_map_fields = {
+            field
+            for fields in check_benchmark.CANDIDATE_NUMERIC_MAP_FIELDS.values()
+            for field in fields
+        }
+        self.assertLessEqual(documented_map_fields, set(props))
+        for field in documented_map_fields:
+            self.assertEqual(props[field]["type"], "object")
+            self.assertEqual(props[field]["additionalProperties"]["type"], "number")
 
 
 class TestCardNumbers(unittest.TestCase):

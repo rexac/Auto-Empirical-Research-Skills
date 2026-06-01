@@ -28,6 +28,7 @@ For a high-level map of the repository trust surface, see [`docs/TRUST.md`](TRUS
 `make validate` checks:
 
 - Required project files exist.
+- Tracked-file hygiene rejects accidental `.DS_Store`, `__pycache__`, `.pyc`, and tool-cache commits.
 - Vendored `skills/**/SKILL.md` frontmatter is audited and summarized.
 - AERS-maintained local Markdown links resolve.
 - GitHub Actions workflows use explicit permissions and non-persistent checkout credentials.
@@ -38,9 +39,16 @@ For a high-level map of the repository trust surface, see [`docs/TRUST.md`](TRUS
 `make check` adds the stdlib unit tests, executable eval-harness lint,
 example-candidate grading smoke test, and numeric benchmark. The eval-harness
 lint gate enforces minimum scenario count, auto-check count, and category
-coverage so accidental eval deletion fails locally and in CI. The benchmark gate
-uses `--strict --fail-on-partial --fail-on-orphan-results` so stale generated
-scorecards from removed or renamed tasks do not masquerade as current coverage.
+coverage so accidental eval deletion fails locally and in CI. The eval smoke
+uses `--no-write` so routine gates do not churn `eval-harness/results/`. The
+benchmark lane first runs `make benchmark-lint` to validate task specs and
+reference-candidate metadata without writing scorecards, then runs the numeric
+benchmark after `benchmark/reference_pipeline.py --check` verifies committed
+reference candidates without rewriting them. The numeric checker uses `--strict
+--fail-on-partial --fail-on-orphan-results` so stale generated scorecards from
+removed or renamed tasks do not masquerade as current coverage. The GitHub
+Actions quality workflow and local pre-commit hooks use the same non-writing
+gates.
 
 ## Review Rules
 
@@ -63,6 +71,14 @@ The validator warns, but does not fail, when:
 - A skill name uses non-portable punctuation.
 
 Run `make audit` when you want the warning stream in the terminal.
+
+Run `make hygiene` when you want a local audit of ignored cache/platform
+artifacts in the working tree. Those ignored files are not failures unless they
+are tracked by git.
+
+Run `make clean` to remove local platform and Python cache artifacts such as
+`.DS_Store`, `__pycache__`, `.pyc`, `.pyo`, `.pytest_cache`, `.ruff_cache`, and
+`.mypy_cache`.
 
 ## CI
 

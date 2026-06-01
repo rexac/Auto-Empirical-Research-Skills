@@ -77,7 +77,7 @@ python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example
 python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example \
   --expect-graded 8 --expect-fail-required statspai-weak-iv \
   --expect-graded-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity \
-  --fail-on-orphans --fail-on-partial
+  --fail-on-orphans --fail-on-partial --no-write
 
 # 4. Emit judge prompts for the manual items (paste into any LLM or hand to a human)
 python3 eval-harness/run_evals.py --judge-prompts /tmp/judge --grade eval-harness/candidates/_example
@@ -95,6 +95,8 @@ For fixture directories used in CI, add `--fail-on-orphans` so typoed or stale
 `*.md` / `*.txt` files whose stem no longer matches a scenario id cannot be
 silently ignored. Add `--fail-on-partial` when fixture outputs should keep all
 machine-checkable, non-required rubric items green too.
+Add `--no-write` when the gate should avoid touching generated scorecards under
+`eval-harness/results/`.
 
 ## Authoring a scenario
 

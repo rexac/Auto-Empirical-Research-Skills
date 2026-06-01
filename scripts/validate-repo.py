@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -15,6 +16,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
 MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
+CATALOG_JSON = ROOT / "catalog" / "skills.json"
 
 
 def read_text(path: Path) -> str:
@@ -23,6 +25,13 @@ def read_text(path: Path) -> str:
 
 def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
+
+
+def display_path(path: Path) -> str:
+    try:
+        return rel(path)
+    except ValueError:
+        return str(path)
 
 
 def _skip_leading_comment(lines: list[str]) -> list[str]:
@@ -146,6 +155,8 @@ def validate_markdown_links() -> tuple[list[str], list[str]]:
     for md_path in iter_project_markdown():
         text = read_text(md_path)
         for match in MARKDOWN_LINK_RE.finditer(text):
+            if is_in_fenced_code(text, match.start()):
+                continue
             target = normalize_markdown_target(match.group(1))
             if target is None:
                 continue
@@ -162,6 +173,14 @@ def validate_markdown_links() -> tuple[list[str], list[str]]:
                 errors.append(f"{rel(md_path)}:{line_no} missing local link: {target}")
 
     return errors, warnings
+
+
+def is_in_fenced_code(text: str, offset: int) -> bool:
+    in_fence = False
+    for line in text[:offset].splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+    return in_fence
 
 
 def validate_skill_frontmatter() -> tuple[list[str], list[str]]:
@@ -255,6 +274,9 @@ def validate_required_files() -> tuple[list[str], list[str]]:
         ".github/dependabot.yml",
         ".github/workflows/check-external-links.yml",
         ".github/workflows/scorecard.yml",
+        "benchmark/README.md",
+        "benchmark/schema/candidate.schema.json",
+        "benchmark/schema/task.schema.json",
         "catalog/skills.json",
         "catalog/provenance.json",
         "catalog/skill-audit.json",
@@ -272,12 +294,66 @@ def validate_required_files() -> tuple[list[str], list[str]]:
         "evals/flagship-evals.json",
         "docs/demos/README.md",
         "docs/search.html",
+        "eval-harness/README.md",
+        "eval-harness/schema/scenario.schema.json",
+        "scripts/check-repo-hygiene.py",
     ]
     for item in required:
         if not (ROOT / item).exists():
             errors.append(f"missing required project file: {item}")
     if not (ROOT / ".github" / "workflows").exists():
         warnings.append("missing .github/workflows directory")
+    return errors, warnings
+
+
+def validate_catalog_snapshot(catalog_path: Path = CATALOG_JSON) -> tuple[list[str], list[str]]:
+    """Fast consistency check between the committed catalog summary and skills/.
+
+    The full builders still own deterministic freshness. This cheap check catches
+    the common multi-agent failure mode where skill directories are added or
+    removed but the catalog has not been regenerated yet.
+    """
+
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not catalog_path.exists():
+        return errors, warnings
+
+    try:
+        payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{display_path(catalog_path)} is not valid JSON: {exc.msg}"], warnings
+
+    summary = payload.get("summary", {})
+    skills = payload.get("skills", [])
+    collections = payload.get("collections", [])
+    skill_paths = iter_skill_files() if SKILLS_DIR.exists() else []
+    collection_ids = {
+        path.relative_to(SKILLS_DIR).parts[0]
+        for path in skill_paths
+        if path.relative_to(SKILLS_DIR).parts
+    }
+
+    expected = {
+        "skill_files": len(skill_paths),
+        "top_level_collections": len(collection_ids),
+    }
+    for key, value in expected.items():
+        if summary.get(key) != value:
+            errors.append(
+                f"{display_path(catalog_path)} summary `{key}`={summary.get(key)!r} "
+                f"does not match skills/ ({value})"
+            )
+
+    if isinstance(skills, list) and len(skills) != len(skill_paths):
+        errors.append(
+            f"{display_path(catalog_path)} has {len(skills)} skill records but skills/ has {len(skill_paths)} SKILL.md files"
+        )
+    if isinstance(collections, list) and len(collections) != len(collection_ids):
+        errors.append(
+            f"{display_path(catalog_path)} has {len(collections)} collection records but skills/ has {len(collection_ids)} collections"
+        )
+
     return errors, warnings
 
 
@@ -289,6 +365,7 @@ def main() -> int:
 
     checks = [
         validate_required_files,
+        validate_catalog_snapshot,
         validate_skill_frontmatter,
         validate_markdown_links,
     ]

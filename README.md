@@ -71,7 +71,7 @@ This repository is the **Agent Skills landscape** we compiled while building CoP
 | 🔧 **Engineering delivery** | **[CoPaper.AI](https://copaper.ai)** empirical research AI assistant | Ships with **20 econometric methodology Skills** (DID/IV/RDD/PSM/DML, etc.), Supervisor + 4 sub-agent multi-agent architecture, one-sentence triggers, automatic result output |
 | ⚙️ **Open-source engine** | **[StatsPAI](https://github.com/brycewang-stanford/StatsPAI)** — **the causal-inference engine that powers CoPaper.AI** | **900+ functions · one `import statspai as sp` · JOSS in submission · MIT-licensed**. Every DID/IV/RD/SCM estimate CoPaper.AI produces is driven by StatsPAI; this Skills collection is itself part of the StatsPAI ecosystem |
 
-> 🔒 **Use with confidence**: every one of the 52 Skills / 2,940+ files in this repo passed our [systematic security audit](SECURITY-SCAN-REPORT.md) — **52/52 CLEAN, zero FLAGGED**, zero exfiltration, zero reverse shells, zero prompt injection.
+> 🔒 **Security baseline**: the original 52 skill directories / 2,940+ files passed our [systematic security audit](SECURITY-SCAN-REPORT.md) — **52/52 CLEAN, zero FLAGGED**, zero exfiltration, zero reverse shells, zero prompt injection. Newer vendored additions are tracked in the generated catalog/provenance/audit files and should be reviewed with `make audit`.
 >
 > 💡 **Want it out of the box?** Skip the Skills assembly — try [**→ copaper.ai**](https://copaper.ai) and let the Stanford methodology team run the empirical pipeline end-to-end for you.
 
@@ -127,9 +127,9 @@ make check       # full gate: validate + unit tests + eval lint + benchmark
 </details>
 
 <details>
-<summary><b>2026-04-28: 🛡️ Repository-wide security scan complete — all 52 Skills CLEAN, zero FLAGGED</b></summary>
+<summary><b>2026-04-28: 🛡️ Security scan baseline complete — original 52 Skills CLEAN, zero FLAGGED</b></summary>
 
-- **🛡️ [SECURITY-SCAN-REPORT.md](SECURITY-SCAN-REPORT.md)**: We ran a systematic security audit across **all 52 Skills / 2,940+ files** in this repository. **No malicious prompts, viruses, trojans, reverse shells, or other malicious content were found.** Bottom line: every Skill in this repo is safe to use.
+- **🛡️ [SECURITY-SCAN-REPORT.md](SECURITY-SCAN-REPORT.md)**: We ran a systematic security audit across the **original 52 Skills / 2,940+ files** in this repository. **No malicious prompts, viruses, trojans, reverse shells, or other malicious content were found.** Later vendored additions are covered by generated provenance/hygiene metadata and should receive the same review before making all-skill safety claims.
   - **🔍 Six-phase defense-in-depth methodology**: (1) automated grep across 13 risk categories (pipe-to-shell, reverse shell, credential exfil, decode-and-run, mining/RAT signatures, prompt injection, etc.) → (2) 100% manual review of all 6 hook-bearing Skills and their 40+ hook scripts → (3) three parallel agents auditing SKILL.md prose, agent definitions, and reference docs separately → (4) supplemental integrity checks (hidden Unicode, encoding anomalies, ultra-long lines, HTML injection, network-related imports).
   - **📊 Result distribution**: every "sensitive" hit verified as one of three legitimate categories — **defensive security rules** (deny rules, bash-safety hooks, credential detectors), **legitimate academic API calls** (arXiv / CrossRef / PubMed / FRED / World Bank / OECD / BLS), or **standard Claude Code workflow hooks** (scaffolding / state save / context monitor — **all local file operations, zero network IO**).
   - **🔑 Key insight**: **17-DAAF is actually the strongest "security-aware" reference template** in this batch (14 defensive hooks + 32 deny rules + active credential scanning). Largest size ≠ highest risk.
@@ -529,7 +529,7 @@ Don't know where to find Skills? These platforms are your starting point:
 
 ## 🛡️ Security Scan
 
-We ran a systematic security audit across **all 52 Skills / 2,940+ files** in this repository — **52/52 CLEAN, zero FLAGGED**. Every "sensitive" hit was verified as legitimate content. **No malicious prompts, viruses, trojans, or reverse shells were found.** Bottom line: every Skill in this repo is safe to use.
+We ran a systematic security audit across the **original 52 Skills / 2,940+ files** in this repository — **52/52 CLEAN, zero FLAGGED**. Every "sensitive" hit was verified as legitimate content. **No malicious prompts, viruses, trojans, or reverse shells were found in that baseline scan.** Newer vendored additions are tracked in [`catalog/provenance.json`](catalog/provenance.json), [`docs/LICENSE_AUDIT.md`](docs/LICENSE_AUDIT.md), and [`docs/SKILL_AUDIT.md`](docs/SKILL_AUDIT.md); run `make audit` before relying on them in high-trust contexts.
 
 ![Skills Security Scan Overview](images/security-scan/security-scan-01-总览.png)
 
@@ -548,7 +548,7 @@ We ran a systematic security audit across **all 52 Skills / 2,940+ files** in th
 
 > **Key insight**: largest size ≠ highest risk. The Top 5 largest Skills ([43-wentorai](skills/43-wentorai-research-plugins/) 478 files / [33-Galaxy-Dawn](skills/33-Galaxy-Dawn-claude-scholar/) 327 files / [17-DAAF](skills/17-DAAF-Contribution-Community-daaf/) 319 files / [35-bahayonghang](skills/35-bahayonghang-academic-writing-skills/) 264 files / [18-jusi-aalto](skills/18-jusi-aalto-stata-accounting-research/) 126 files) all passed full audit, with 17-DAAF actually setting the bar for security-conscious design.
 
-The full report includes Phase 1-6 methodology, a per-Skill audit table for all 52 Skills, and 5 visual infographics: [**📋 SECURITY-SCAN-REPORT.md**](SECURITY-SCAN-REPORT.md)
+The full report includes Phase 1-6 methodology, a per-Skill audit table for the original 52 Skills, and 5 visual infographics: [**📋 SECURITY-SCAN-REPORT.md**](SECURITY-SCAN-REPORT.md)
 
 ---
 

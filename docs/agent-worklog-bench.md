@@ -39,8 +39,20 @@ Every commit on this branch keeps `make check` green
   multiple-testing/research-integrity eval fixtures.
 - [x] Added deterministic staggered-DID benchmark task, data, reference candidate,
   and anti-TWFE grading checks.
+- [x] Added benchmark task and candidate JSON Schemas with schema/validator sync
+  tests so future benchmark extensions have an editor-visible contract.
+- [x] Added `benchmark/check_benchmark.py --lint` / `make benchmark-lint`
+  for metadata-only benchmark validation before writing scorecards.
+- [x] Added `benchmark/reference_pipeline.py --check` and wired `make benchmark`
+  to verify committed reference candidates without rewriting them.
 - [x] Hardened eval and benchmark validators against malformed specs, unsafe paths,
   orphan fixture files, partial fixture scores, and stale benchmark result JSON.
+- [x] Added eval `--no-write` mode and wired eval smoke to use it, reducing
+  generated scorecard churn during parallel local/CI checks.
+- [x] Updated GitHub Actions and pre-commit gates to use non-writing benchmark
+  reference checks and eval smoke output suppression.
+- [x] Added tracked-file hygiene gate to prevent accidental `.DS_Store`,
+  `__pycache__`, `.pyc`, and tool-cache commits during parallel work.
 - [x] Wired strict local/CI gates through `make check` and `.github/workflows/quality-evals.yml`,
   including eval coverage floors for scenario count, auto-check count, and categories.
 
@@ -56,7 +68,10 @@ python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example \
   --expect-graded-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity \
   --fail-on-orphans --fail-on-partial
 python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results
+python3 benchmark/check_benchmark.py --lint
+python3 benchmark/reference_pipeline.py --check
 python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py
+python3 scripts/check-repo-hygiene.py
 git diff --check
 make check
 ```

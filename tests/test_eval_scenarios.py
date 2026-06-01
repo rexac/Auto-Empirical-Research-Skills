@@ -245,6 +245,20 @@ class TestGrader(unittest.TestCase):
                 1,
             )
 
+    def test_no_write_skips_scorecard_update(self):
+        cand = run_evals.ROOT / "eval-harness" / "candidates" / "_example"
+        results_json = run_evals.RESULTS_DIR / "results.json"
+        before = results_json.read_text(encoding="utf-8") if results_json.exists() else None
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            code = run_evals.main([
+                "--grade", str(cand),
+                "--expect-fail-required", "statspai-weak-iv",
+                "--no-write",
+            ])
+        after = results_json.read_text(encoding="utf-8") if results_json.exists() else None
+        self.assertEqual(code, 0)
+        self.assertEqual(after, before)
+
     def test_lint_coverage_cli_gate(self):
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(

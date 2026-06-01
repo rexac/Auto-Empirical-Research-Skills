@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 import unittest
 
 from _helpers import ROOT, load_module
 
 build_catalog = load_module("scripts/build-catalog.py", "aers_build_catalog")
+validate_repo = load_module("scripts/validate-repo.py", "aers_validate_repo")
 
 
 class TestFrontmatterParser(unittest.TestCase):
@@ -74,6 +76,61 @@ class TestGeneratedArtifactsAreCurrent(unittest.TestCase):
     def test_skill_audit_current(self):
         r = self._run("scripts/build-skill-audit.py", "--check")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+
+class TestCatalogSnapshotConsistency(unittest.TestCase):
+    def test_current_catalog_summary_matches_skills_tree(self):
+        errors, warnings = validate_repo.validate_catalog_snapshot()
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_catalog_snapshot_mismatch_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = validate_repo.Path(tmp) / "skills.json"
+            path.write_text(
+                '{"summary":{"skill_files":0,"top_level_collections":0},'
+                '"skills":[],"collections":[]}\n',
+                encoding="utf-8",
+            )
+            errors, _ = validate_repo.validate_catalog_snapshot(path)
+        self.assertTrue(any("skill_files" in error for error in errors))
+        self.assertTrue(any("top_level_collections" in error for error in errors))
+
+
+class TestMarkdownLinkValidation(unittest.TestCase):
+    def test_fenced_code_detection(self):
+        text = "before [ok](README.md)\n```markdown\n[example](missing.md)\n```\nafter\n"
+        self.assertFalse(validate_repo.is_in_fenced_code(text, text.index("[ok]")))
+        self.assertTrue(validate_repo.is_in_fenced_code(text, text.index("[example]")))
+
+    def test_code_fence_links_are_ignored_for_expansion_doc(self):
+        errors, _ = validate_repo.validate_markdown_links()
+        self.assertFalse(
+            [
+                error
+                for error in errors
+                if "EMPIRICAL_SKILLS_EXPANSION_2026-06.md" in error
+            ]
+        )
+
+
+class TestLocalAndCiGates(unittest.TestCase):
+    def test_quality_workflow_uses_non_writing_gates(self):
+        text = (ROOT / ".github" / "workflows" / "quality-evals.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("python3 benchmark/check_benchmark.py --lint", text)
+        self.assertIn("python3 benchmark/reference_pipeline.py --check", text)
+        self.assertNotIn("python3 benchmark/reference_pipeline.py\n", text)
+        self.assertIn("--no-write", text)
+
+    def test_pre_commit_uses_non_writing_benchmark_gate(self):
+        text = (ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
+        self.assertIn("python3 benchmark/check_benchmark.py --lint", text)
+        self.assertIn("python3 benchmark/reference_pipeline.py --check", text)
+        self.assertNotIn("python3 benchmark/reference_pipeline.py >/dev/null", text)
+        self.assertIn("aers-tracked-file-hygiene", text)
+        self.assertIn("python3 scripts/check-repo-hygiene.py", text)
 
 
 if __name__ == "__main__":

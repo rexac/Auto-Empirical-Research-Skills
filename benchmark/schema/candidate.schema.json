@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/benchmark/schema/candidate.schema.json",
+  "title": "AERS benchmark candidate results",
+  "description": "Schema for benchmark/candidates/<run-name>/results.json. benchmark/check_benchmark.py is the authoritative validator; this schema documents the task-specific numeric fields expected from candidate pipelines.",
+  "type": "object",
+  "required": ["task"],
+  "additionalProperties": true,
+  "properties": {
+    "task": {
+      "type": "string",
+      "enum": ["card-iv-recovery", "did-staggered-recovery", "lalonde-recovery"]
+    },
+    "method": {
+      "type": "string"
+    },
+    "n": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_treated": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_control": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ols_return": {
+      "type": "number"
+    },
+    "iv_return": {
+      "type": "number"
+    },
+    "first_stage_F": {
+      "type": "number"
+    },
+    "first_stage_coef": {
+      "type": "number"
+    },
+    "true_att": {
+      "type": "number"
+    },
+    "twfe_att": {
+      "type": "number"
+    },
+    "cs_att": {
+      "type": "number"
+    },
+    "naive_att": {
+      "type": "number"
+    },
+    "adjusted_att": {
+      "type": "number"
+    },
+    "balance": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "task": {
+            "const": "card-iv-recovery"
+          }
+        }
+      },
+      "then": {
+        "required": ["ols_return", "iv_return", "first_stage_F", "first_stage_coef"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task": {
+            "const": "did-staggered-recovery"
+          }
+        }
+      },
+      "then": {
+        "required": ["true_att", "twfe_att", "cs_att"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task": {
+            "const": "lalonde-recovery"
+          }
+        }
+      },
+      "then": {
+        "required": ["naive_att", "adjusted_att", "balance"]
+      }
+    }
+  ]
+}

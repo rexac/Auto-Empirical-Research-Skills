@@ -45,9 +45,10 @@ If you need to edit a high-conflict area, keep the diff isolated and run the rel
 
 ```bash
 make catalog
-make validate
-python3 -m py_compile scripts/*.py
+make check
+python3 -m py_compile scripts/*.py benchmark/*.py benchmark/lib/*.py eval-harness/*.py tests/*.py
 git diff --check
+make hygiene
 git status --short
 ```
 

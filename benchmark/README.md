@@ -74,10 +74,13 @@ genuinely not guaranteed to nail it.
 ## Run it
 
 ```bash
-# 1. Produce the reference candidates (pure-stdlib pipelines, one per task)
-python3 benchmark/reference_pipeline.py
+# 1. Check committed reference candidates (pure-stdlib pipelines, one per task)
+python3 benchmark/reference_pipeline.py --check
 
-# 2. Grade all tasks against the golds
+# 2. Validate task specs and committed reference candidate metadata
+python3 benchmark/check_benchmark.py --lint
+
+# 3. Grade all tasks against the golds
 python3 benchmark/check_benchmark.py
 #    -> lalonde-recovery 15/15, card-iv-recovery 14/14,
 #       did-staggered-recovery 12/12, no required failures
@@ -85,7 +88,10 @@ python3 benchmark/check_benchmark.py
 # CI/reference gate: fail on required misses and optional-gold drift
 python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results
 
-# 3. Grade one task / a real agent run (drop its results.json in a candidate dir)
+# 4. Regenerate committed references after intentional benchmark logic changes
+python3 benchmark/reference_pipeline.py
+
+# 5. Grade one task / a real agent run (drop its results.json in a candidate dir)
 python3 benchmark/check_benchmark.py --task card-iv-recovery
 python3 benchmark/check_benchmark.py --candidate <run-name>
 ```
@@ -94,7 +100,11 @@ Candidate directory names are single path segments under `benchmark/candidates/`
 and must match `[A-Za-z0-9][A-Za-z0-9._-]*`; the checker rejects path separators
 or absolute paths before opening `results.json`.
 
-### Candidate `results.json` schema
+### Candidate `results.json` contract
+
+The machine-readable schema is [`schema/candidate.schema.json`](schema/candidate.schema.json).
+The Python checker remains authoritative because it also compares reported
+numbers against recomputed data golds.
 
 ```json
 {
@@ -123,6 +133,8 @@ benchmark/
   tasks/lalonde-recovery.toml   # observational DiD/matching recovery task
   tasks/card-iv-recovery.toml   # IV (returns-to-schooling) recovery task
   tasks/did-staggered-recovery.toml # staggered-DID TWFE-trap task
+  schema/task.schema.json       # JSON Schema documenting task TOML shape
+  schema/candidate.schema.json  # JSON Schema documenting candidate results.json
   lib/lalonde.py                # pure-stdlib loaders, SMD, naive ATT, OLS
   lib/card.py                   # pure-stdlib OLS+SE, first-stage F, 2SLS
   lib/simdid.py                 # deterministic staggered-DID DGP and estimators
@@ -150,5 +162,7 @@ Score: 2/15
 Add a task by dropping a new `tasks/<id>.toml`, a `compute_truth` branch, and any
 new gold-check handlers in `check_benchmark.py`. The checker validates task ids,
 repo-relative data-file paths, gold ids, known check names, required fields, and
-candidate task metadata before scoring. Keep tasks deterministic and small
-enough to run in CI without third-party packages.
+candidate task metadata before scoring. Keep `schema/task.schema.json` and
+`schema/candidate.schema.json` in sync with any new task/check/result fields so
+editors and reviewers see the same contract as the Python validator. Keep tasks
+deterministic and small enough to run in CI without third-party packages.

@@ -9,6 +9,7 @@ experimental benchmark, the Card canonical values) come from the task specs.
 
 Usage:
     python3 benchmark/reference_pipeline.py            # produce reference candidates
+    python3 benchmark/check_benchmark.py --lint        # validate task + candidate metadata only
     python3 benchmark/check_benchmark.py               # grade all tasks
     python3 benchmark/check_benchmark.py --task card-iv-recovery
     python3 benchmark/check_benchmark.py --strict      # nonzero exit on required fail
@@ -542,10 +543,60 @@ def grade_task(
     return exit_code_for_failures(req_fail, opt_fail, strict, fail_on_partial), req_fail
 
 
+def lint_task(task_path: Path, candidate_override: str | None = None) -> list[str]:
+    with task_path.open("rb") as fh:
+        task = tomllib.load(fh)
+    task_id = task.get("id", task_path.stem) if isinstance(task, dict) else task_path.stem
+    problems = [f"{task_id}: {problem}" for problem in validate_task(task, task_path)]
+    if problems:
+        return problems
+
+    cand_dir = candidate_override or task.get("reference_candidate", "")
+    problems.extend(
+        f"{task['id']}: {problem}"
+        for problem in validate_candidate_dir_name(cand_dir, "candidate")
+    )
+    if problems:
+        return problems
+
+    results_json = CANDIDATES_DIR / cand_dir / "results.json"
+    if not results_json.exists():
+        return [f"{task['id']}: missing candidate results.json at {results_json.relative_to(ROOT)}"]
+    try:
+        candidate = json.loads(results_json.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [
+            f"{task['id']}: invalid candidate JSON {results_json.relative_to(ROOT)} "
+            f"({exc.msg} at line {exc.lineno}, column {exc.colno})"
+        ]
+    return [
+        f"{task['id']}: {problem}"
+        for problem in validate_candidate(task, candidate, results_json)
+    ]
+
+
+def lint_tasks(task_paths: list[Path], candidate_override: str | None = None) -> int:
+    problems: list[str] = []
+    for task_path in task_paths:
+        problems.extend(lint_task(task_path, candidate_override))
+    if problems:
+        print(f"Benchmark lint found {len(problems)} problem(s):", file=sys.stderr)
+        for problem in problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 1
+    print(f"Benchmark lint passed for {len(task_paths)} task(s).")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Grade AERS benchmark candidates")
     ap.add_argument("--task", help="grade only this task id (default: all)")
     ap.add_argument("--candidate", help="override candidate dir name under benchmark/candidates/")
+    ap.add_argument(
+        "--lint",
+        action="store_true",
+        help="validate task specs and reference candidate metadata without scoring",
+    )
     ap.add_argument("--strict", action="store_true")
     ap.add_argument(
         "--fail-on-partial",
@@ -578,6 +629,9 @@ def main(argv: list[str] | None = None) -> int:
         if not tasks:
             print(f"No task '{args.task}'", file=sys.stderr)
             return 1
+
+    if args.lint:
+        return lint_tasks(tasks, args.candidate)
 
     rc = 0
     for t in tasks:

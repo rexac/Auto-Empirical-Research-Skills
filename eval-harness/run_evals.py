@@ -28,7 +28,7 @@ Usage:
     python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example \
         --expect-graded 8 --expect-fail-required statspai-weak-iv \
         --expect-graded-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity \
-        --fail-on-orphans --fail-on-partial
+        --fail-on-orphans --fail-on-partial --no-write
     python3 eval-harness/run_evals.py --judge-prompts /tmp/judge \
         --grade eval-harness/candidates/_example
 """
@@ -541,6 +541,11 @@ def main(argv: list[str] | None = None) -> int:
         help="fail if any graded candidate has non-required machine-check failures",
     )
     ap.add_argument(
+        "--no-write",
+        action="store_true",
+        help="grade candidates without writing eval-harness/results scorecards",
+    )
+    ap.add_argument(
         "--min-scenarios",
         type=int,
         help="coverage gate: require at least this many scenario files",
@@ -642,7 +647,10 @@ def main(argv: list[str] | None = None) -> int:
             for g in graded
             if g["status"] != "no-candidate" and g.get("category")
         }
-        write_results(graded, stats)
+        if args.no_write:
+            print("Scorecard write skipped (--no-write).")
+        else:
+            write_results(graded, stats)
         print(f"\nGraded {n_graded}/{len(graded)} scenario(s); "
               f"{len(failed_ids)} with required-item failures.")
         if args.expect_graded is not None and n_graded != args.expect_graded:

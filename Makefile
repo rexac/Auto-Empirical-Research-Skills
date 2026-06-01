@@ -1,4 +1,4 @@
-.PHONY: catalog validate check audit evals eval-harness eval-smoke benchmark test
+.PHONY: catalog validate check audit hygiene clean evals eval-harness eval-smoke benchmark-lint benchmark benchmark-refresh test
 
 catalog:
 	python3 scripts/build-provenance.py
@@ -10,6 +10,7 @@ catalog:
 # Catalog/provenance/audit/eval freshness + repo link & frontmatter validation.
 validate:
 	python3 scripts/validate-repo.py
+	python3 scripts/check-repo-hygiene.py
 	python3 scripts/validate-workflows.py
 	python3 scripts/build-provenance.py --check
 	python3 scripts/build-skill-audit.py --check
@@ -34,19 +35,35 @@ eval-smoke:
 	python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example \
 		--expect-graded 8 --expect-fail-required statspai-weak-iv \
 		--expect-graded-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity \
-		--fail-on-orphans --fail-on-partial
+		--fail-on-orphans --fail-on-partial --no-write
+
+benchmark-lint:
+	python3 benchmark/check_benchmark.py --lint
 
 # Reproducible numeric benchmark; fail on required and optional reference-gold drift.
 benchmark:
-	python3 benchmark/reference_pipeline.py
+	python3 benchmark/reference_pipeline.py --check
 	python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results
+
+benchmark-refresh:
+	python3 benchmark/reference_pipeline.py
 
 # Stdlib unittest suite (no third-party deps required).
 test:
 	python3 -m unittest discover -s tests -p "test_*.py"
 
 # Full local gate: everything a PR should pass.
-check: validate test eval-harness eval-smoke benchmark
+check: validate test eval-harness eval-smoke benchmark-lint benchmark
 
 audit:
 	python3 scripts/validate-repo.py --audit
+	python3 scripts/check-repo-hygiene.py --audit-local
+
+hygiene:
+	python3 scripts/check-repo-hygiene.py --audit-local
+
+clean:
+	find . -path ./.git -prune -o -name .DS_Store -type f -exec rm -f {} +
+	find . -path ./.git -prune -o -name __pycache__ -type d -prune -exec rm -rf {} +
+	find . -path ./.git -prune -o \( -name '*.pyc' -o -name '*.pyo' \) -type f -exec rm -f {} +
+	rm -rf .pytest_cache .ruff_cache .mypy_cache

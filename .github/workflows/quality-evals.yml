@@ -42,7 +42,8 @@ jobs:
 
       - name: Benchmark (reference pipeline + strict grading)
         run: |
-          python3 benchmark/reference_pipeline.py
+          python3 benchmark/check_benchmark.py --lint
+          python3 benchmark/reference_pipeline.py --check
           python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results
 
       - name: Grade example candidates (smoke)
@@ -54,3 +55,4 @@ jobs:
           --expect-graded-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity
           --fail-on-orphans
           --fail-on-partial
+          --no-write

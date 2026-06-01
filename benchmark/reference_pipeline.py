@@ -8,6 +8,7 @@ own results.json into a sibling candidate directory and grade against it.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -21,10 +22,21 @@ ROOT = Path(__file__).resolve().parents[1]
 CAND = Path(__file__).resolve().parent / "candidates"
 
 
+def serialize(payload: dict) -> str:
+    return json.dumps(payload, indent=2) + "\n"
+
+
+def rel(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def write(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {path.relative_to(ROOT)}")
+    path.write_text(serialize(payload), encoding="utf-8")
+    print(f"Wrote {rel(path)}")
 
 
 def lalonde_candidate() -> dict:
@@ -54,9 +66,11 @@ def card_candidate() -> dict:
     }
 
 
-def did_candidate() -> dict:
+def did_candidate(write_missing_data: bool = True) -> dict:
     data_path = ROOT / "benchmark" / "data" / "sim-staggered-did.csv"
     if not data_path.exists():
+        if not write_missing_data:
+            raise FileNotFoundError(data_path)
         simdid.write_csv(data_path)
     rows = simdid.load(data_path)
     return {
@@ -69,22 +83,61 @@ def did_candidate() -> dict:
     }
 
 
-def main() -> int:
-    lc = lalonde_candidate()
-    write(CAND / "reference-ols" / "results.json", lc)
+def reference_candidates(write_missing_data: bool = True) -> list[tuple[Path, dict]]:
+    return [
+        (CAND / "reference-ols" / "results.json", lalonde_candidate()),
+        (CAND / "reference-iv" / "results.json", card_candidate()),
+        (CAND / "reference-did" / "results.json", did_candidate(write_missing_data)),
+    ]
+
+
+def print_summary(payloads: list[tuple[Path, dict]]) -> None:
+    by_task = {payload["task"]: payload for _, payload in payloads}
+    lc = by_task["lalonde-recovery"]
     print(f"  lalonde: naive {lc['naive_att']:,.0f} -> adjusted {lc['adjusted_att']:,.0f}")
-    cc = card_candidate()
-    write(CAND / "reference-iv" / "results.json", cc)
+    cc = by_task["card-iv-recovery"]
     print(
         f"  card:    OLS {cc['ols_return']} -> IV {cc['iv_return']} "
         f"(first-stage F {cc['first_stage_F']})"
     )
-    dc = did_candidate()
-    write(CAND / "reference-did" / "results.json", dc)
+    dc = by_task["did-staggered-recovery"]
     print(
         f"  staggered DID: TWFE {dc['twfe_att']} -> group-time {dc['cs_att']} "
         f"(true {dc['true_att']})"
     )
+
+
+def check_outputs(payloads: list[tuple[Path, dict]]) -> int:
+    stale: list[str] = []
+    for path, payload in payloads:
+        expected = serialize(payload)
+        if not path.exists() or path.read_text(encoding="utf-8") != expected:
+            stale.append(rel(path))
+    if stale:
+        print("Reference benchmark candidates are stale. Regenerate with:", file=sys.stderr)
+        print("  python3 benchmark/reference_pipeline.py", file=sys.stderr)
+        for path in stale:
+            print(f"stale: {path}", file=sys.stderr)
+        return 1
+    print("Reference benchmark candidates are current.")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="verify committed reference candidates without rewriting them",
+    )
+    args = parser.parse_args(argv)
+
+    payloads = reference_candidates(write_missing_data=not args.check)
+    if args.check:
+        return check_outputs(payloads)
+    for path, payload in payloads:
+        write(path, payload)
+    print_summary(payloads)
     return 0
 
 

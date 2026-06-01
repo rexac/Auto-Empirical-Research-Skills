@@ -71,7 +71,7 @@
 | 🔧 **工程落地** | **[CoPaper.AI](https://copaper.ai)** 实证研究 AI 助手 | 内置 **20 个经济学方法论 Skills**（DID/IV/RDD/PSM/DML 等），Supervisor + 4 子代理多智能体架构，一句话触发，结果自动输出 |
 | ⚙️ **开源引擎** | **[StatsPAI](https://github.com/brycewang-stanford/StatsPAI)** —— **CoPaper.AI 的因果推断引擎** | **900+ 函数 · 一个 `import statspai as sp` · JOSS 投稿中 · MIT 开源**。CoPaper.AI 跑出的每一个 DID/IV/RD/SCM 估计都由 StatsPAI 驱动；这份 Skills 大全本身也是 StatsPAI 生态的一部分 |
 
-> 🔒 **可信使用**：本仓库 52 个 Skill / 2,940+ 文件经[系统性安全扫描](SECURITY-SCAN-REPORT.md) —— **52/52 全部 CLEAN，零 FLAGGED**，零网络外泄、零反向 shell、零 prompt 注入。
+> 🔒 **安全基线**：本仓库最初 52 个 skill 目录 / 2,940+ 文件经[系统性安全扫描](SECURITY-SCAN-REPORT.md) —— **52/52 全部 CLEAN，零 FLAGGED**，零网络外泄、零反向 shell、零 prompt 注入。后续新增 vendor 条目由生成的 catalog / provenance / audit 文件跟踪；高信任场景使用前请运行 `make audit` 复核。
 >
 > 💡 **想要开箱即用？** 不必自己拼装 Skills —— 直接试试 [**→ copaper.ai**](https://copaper.ai)，让 Stanford 研究方法论团队为你做完整的实证流水线。
 
@@ -132,9 +132,9 @@ make validate
 </details>
 
 <details>
-<summary><b>2026-04-28：🛡️ 全仓 52 个 Skill 完成系统性安全扫描 —— 52/52 全部 CLEAN，零 FLAGGED</b></summary>
+<summary><b>2026-04-28：🛡️ 安全扫描基线完成 —— 原始 52 个 Skill 全部 CLEAN，零 FLAGGED</b></summary>
 
-- **🛡️ [SECURITY-SCAN-REPORT.md](SECURITY-SCAN-REPORT.md)**：对仓库内 **52 个 Skill / 2,940+ 文件**完成系统性安全审查，**未发现任何恶意 prompt、病毒、木马或其他恶意内容**。结论先行：可以放心使用本仓库内任意 Skill。
+- **🛡️ [SECURITY-SCAN-REPORT.md](SECURITY-SCAN-REPORT.md)**：对仓库原始 **52 个 Skill / 2,940+ 文件**完成系统性安全审查，**未发现任何恶意 prompt、病毒、木马或其他恶意内容**。后续新增 vendor 条目由生成的 provenance / hygiene 元数据覆盖，若要继续做“全仓安全”表述，应按同等标准复核。
   - **🔍 六阶段多层防御**：(1) 13 类风险模式自动化 grep（pipe-to-shell / 反向 shell / 凭据外泄 / 解码执行 / 挖矿 RAT 签名 / Prompt 注入等）→ (2) 6 个含 hook 的 skill、40+ hook 脚本 100% 人工核查 → (3) 三 Agent 并行审查 SKILL.md / agent 定义 / reference 文档 → (4) 补充完整性检查（隐藏 Unicode / 编码异常 / 极长行 / HTML 注入 / 网络相关 import）。
   - **📊 结果分布**：所有看似敏感的命中均为三类合法内容 —— **防御性安全规则**（deny rule、bash-safety hook、凭据检测器）、**合法学术 API 调用**（arXiv / CrossRef / PubMed / FRED / World Bank 等）、**标准 Claude Code 本地 hook**（脚手架 / 状态保存 / context 监控，全部本地操作、零网络 IO）。
   - **🔑 关键洞察**：**17-DAAF 反而是这批 Skill 中"安全意识最强"的参考样板**（14 个防御 hook + 32 条 deny rule + 主动凭据扫描）；规模最大 ≠ 风险最高。
@@ -535,7 +535,7 @@ Skill 就是解决这个问题的：它是给 AI 的**方法论操作手册**。
 
 ## 🛡️ 安全扫描
 
-我们对仓库内**全部 52 个 Skill / 2,940+ 文件**做了系统性安全审查 —— **52/52 全部 CLEAN，零 FLAGGED**。所有看似敏感的命中经验证后均归入合法内容，**未发现任何恶意 prompt、病毒、木马或反向 shell**。结论先行：可以放心使用本仓库收录的任意 Skill。
+我们对仓库原始 **52 个 Skill / 2,940+ 文件**做了系统性安全审查 —— **52/52 全部 CLEAN，零 FLAGGED**。所有看似敏感的命中经验证后均归入合法内容，**在这次基线扫描范围内未发现任何恶意 prompt、病毒、木马或反向 shell**。后续新增 vendor 条目请结合 [`catalog/provenance.json`](catalog/provenance.json)、[`docs/LICENSE_AUDIT.md`](docs/LICENSE_AUDIT.md)、[`docs/SKILL_AUDIT.md`](docs/SKILL_AUDIT.md) 与 `make audit` 复核后再用于高信任场景。
 
 ![Skills 安全扫描总览](images/security-scan/security-scan-01-总览.png)
 

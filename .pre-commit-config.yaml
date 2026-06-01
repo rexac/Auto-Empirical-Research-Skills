@@ -21,10 +21,16 @@ repos:
         files: ^(tests/|eval-harness/|benchmark/|scripts/)
       - id: aers-benchmark
         name: AERS benchmark (strict)
-        entry: bash -c 'python3 benchmark/reference_pipeline.py >/dev/null && python3 benchmark/check_benchmark.py --strict >/dev/null'
+        entry: bash -c 'python3 benchmark/check_benchmark.py --lint >/dev/null && python3 benchmark/reference_pipeline.py --check >/dev/null && python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results >/dev/null'
         language: system
         pass_filenames: false
         files: ^benchmark/
+      - id: aers-tracked-file-hygiene
+        name: AERS tracked-file hygiene
+        entry: python3 scripts/check-repo-hygiene.py
+        language: system
+        pass_filenames: false
+        files: ^(.DS_Store|.*(__pycache__|\.py[cod]|\.pytest_cache|\.ruff_cache|\.mypy_cache)|scripts/check-repo-hygiene\.py)
       - id: aers-repo-validate
         name: AERS repo validate (links + frontmatter)
         entry: python3 scripts/validate-repo.py

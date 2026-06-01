@@ -32,9 +32,12 @@ many vendored skills target one stack. Filter the `language` facet in
 ## Trust & safety
 
 **Q: Is it safe to load these into my agent?**
-Every listed skill is reviewed at intake for unsafe hooks, credential reads,
-network callbacks, and prompt injection — see [`SECURITY-SCAN-REPORT.md`](../SECURITY-SCAN-REPORT.md)
-and the reporting process in [`SECURITY.md`](../SECURITY.md).
+Treat vendored skills as executable instructions. The original 52 skill
+directories have a full baseline scan in
+[`SECURITY-SCAN-REPORT.md`](../SECURITY-SCAN-REPORT.md); newer additions are
+tracked in the generated catalog/provenance/audit files and should be reviewed
+with `make audit` before high-trust use. Report concerns via
+[`SECURITY.md`](../SECURITY.md).
 
 **Q: How do I know a skill actually produces correct econometrics?**
 You don't, by default — you *verify*. The hygiene score in
@@ -45,7 +48,7 @@ is in `docs/TRUST.md`.
 
 **Q: Is everything in the catalog eval-covered?**
 No. Only the **flagship** skills have eval scenarios and benchmark tasks. The long
-tail is scanned for safety and scored for hygiene, but correctness is not
+tail is scored for structural hygiene and provenance, but correctness is not
 individually certified. This is stated plainly in `docs/TRUST.md`.
 
 **Q: A green check means the answer is correct, right?**
