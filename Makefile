@@ -1,18 +1,25 @@
-.PHONY: catalog validate check audit eval-harness benchmark test
+.PHONY: catalog validate check audit evals eval-harness benchmark test
 
 catalog:
 	python3 scripts/build-provenance.py
 	python3 scripts/build-skill-audit.py
 	python3 scripts/build-catalog.py
+	python3 scripts/build-evals.py
 	python3 scripts/build-catalog-enrich.py
 
-# Catalog/provenance/audit freshness + repo link & frontmatter validation.
+# Catalog/provenance/audit/eval freshness + repo link & frontmatter validation.
 validate:
 	python3 scripts/validate-repo.py
+	python3 scripts/validate-workflows.py
 	python3 scripts/build-provenance.py --check
 	python3 scripts/build-skill-audit.py --check
 	python3 scripts/build-catalog.py --check
+	python3 scripts/build-evals.py --check
 	python3 scripts/build-catalog-enrich.py --check
+
+# Declarative flagship eval prompt matrix (docs/EVALS.md).
+evals:
+	python3 scripts/build-evals.py
 
 # Lint executable eval-harness scenarios (CI gate; needs no candidate outputs).
 # Distinct from `make evals` (the declarative flagship-evals prompt matrix).

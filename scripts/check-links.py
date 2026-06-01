@@ -15,6 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "catalog" / "external-link-check.json"
 LINK_RE = re.compile(r"(?:href=[\"']|\]\()(https?://[^)\"' >]+)")
+REDIRECT_STATUSES = {301, 302, 303, 307, 308}
+ACCESS_LIMITED_STATUSES = {403, 429}
 
 
 def maintained_docs() -> list[Path]:
@@ -46,7 +48,7 @@ def check_url(url: str, timeout: float) -> dict[str, object]:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return {"url": url, "status": response.status, "ok": response.status < 400}
     except urllib.error.HTTPError as error:
-        if error.code in {403, 405, 429}:
+        if error.code in REDIRECT_STATUSES | ACCESS_LIMITED_STATUSES | {405}:
             return retry_get(url, timeout, tolerated_status=error.code)
         return {"url": url, "status": error.code, "ok": False, "error": str(error)}
     except Exception as error:  # noqa: BLE001 - CLI should report every failure type.
@@ -59,21 +61,35 @@ def retry_get(url: str, timeout: float, tolerated_status: int | None = None, err
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return {"url": url, "status": response.status, "ok": response.status < 400}
     except urllib.error.HTTPError as http_error:
-        if http_error.code in {403, 429}:
+        if http_error.code in ACCESS_LIMITED_STATUSES:
             return {
                 "url": url,
                 "status": http_error.code,
                 "ok": True,
                 "warning": "Access-limited endpoint; treated as reachable.",
             }
+        if http_error.code in REDIRECT_STATUSES:
+            return {
+                "url": url,
+                "status": http_error.code,
+                "ok": True,
+                "warning": "Redirect endpoint; treated as reachable.",
+            }
         return {"url": url, "status": http_error.code, "ok": False, "error": str(http_error)}
     except Exception as get_error:  # noqa: BLE001
-        if tolerated_status in {403, 429}:
+        if tolerated_status in ACCESS_LIMITED_STATUSES:
             return {
                 "url": url,
                 "status": tolerated_status,
                 "ok": True,
                 "warning": "Access-limited endpoint; treated as reachable.",
+            }
+        if tolerated_status in REDIRECT_STATUSES:
+            return {
+                "url": url,
+                "status": tolerated_status,
+                "ok": True,
+                "warning": "Redirect endpoint; treated as reachable.",
             }
         return {"url": url, "status": None, "ok": False, "error": error or str(get_error)}
 

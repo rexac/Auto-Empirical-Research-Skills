@@ -51,6 +51,7 @@
 [![Hooks Audited](https://img.shields.io/badge/hook%20scripts-40%2B%20audited-blue)](SECURITY-SCAN-REPORT.md)
 [![Zero Threats](https://img.shields.io/badge/threats%20found-0-brightgreen)](SECURITY-SCAN-REPORT.md)
 [![Validate catalog](https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/actions/workflows/validate-catalog.yml/badge.svg)](https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/actions/workflows/validate-catalog.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/brycewang-stanford/Auto-Empirical-Research-Skills/badge)](https://scorecard.dev/viewer/?uri=github.com/brycewang-stanford/Auto-Empirical-Research-Skills)
 
 **实证研究全流程 AI Agent Skills 大全 — 收录 119 个 GitHub 仓库 / 覆盖 23,000+ Skills**
 
@@ -82,8 +83,10 @@
 - 浏览自动生成的本地 catalog：[`docs/SKILL_CATALOG.md`](docs/SKILL_CATALOG.md)
 - 直接复制常用实证工作流：[`docs/GOLDEN_WORKFLOWS.md`](docs/GOLDEN_WORKFLOWS.md)
 - 查看旗舰 demo：[`docs/demos/`](docs/demos/)
+- 运行旗舰回归评测提示词：[`docs/EVALS.md`](docs/EVALS.md)
 - 安装或复制 skill 到 agent runtime：[`docs/INSTALL.md`](docs/INSTALL.md)
 - 使用机器可读索引：[`catalog/skills.json`](catalog/skills.json)
+- 协调多 agent 并行工作：[`docs/AGENT_COORDINATION.md`](docs/AGENT_COORDINATION.md)
 - 查看 provenance 与 license 风险：[`docs/LICENSE_AUDIT.md`](docs/LICENSE_AUDIT.md)
 - 查看贡献与质量门槛：[`docs/QUALITY_GATE.md`](docs/QUALITY_GATE.md) · [`docs/SKILL_SUBMISSION_GUIDE.md`](docs/SKILL_SUBMISSION_GUIDE.md)
 - 查看本轮 repo 体检与路线图：[`docs/REPO_AUDIT_2026-05-31.md`](docs/REPO_AUDIT_2026-05-31.md) · [`docs/ROADMAP.md`](docs/ROADMAP.md)

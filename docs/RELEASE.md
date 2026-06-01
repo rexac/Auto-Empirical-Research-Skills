@@ -31,6 +31,7 @@ Then review:
 - [`CHANGELOG.md`](../CHANGELOG.md)
 - [`docs/LICENSE_AUDIT.md`](LICENSE_AUDIT.md)
 - [`docs/SKILL_CATALOG.md`](SKILL_CATALOG.md)
+- [`docs/EVALS.md`](EVALS.md)
 - [`catalog/skills.json`](../catalog/skills.json)
 - [`catalog/provenance.json`](../catalog/provenance.json)
 
@@ -52,6 +53,7 @@ Then review:
 - `make validate`:
 - `python3 -m py_compile scripts/*.py`:
 - `git diff --check`:
+- OpenSSF Scorecard:
 
 ## Known Follow-Ups
 
