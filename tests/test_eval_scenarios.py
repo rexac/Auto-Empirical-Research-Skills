@@ -263,8 +263,8 @@ class TestGrader(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(
                 run_evals.main([
-                    "--min-scenarios", "14",
-                    "--min-auto-checks", "66",
+                    "--min-scenarios", "17",
+                    "--min-auto-checks", "80",
                     "--expect-categories",
                     "causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity,writing-compliance,writing-style",
                 ]),

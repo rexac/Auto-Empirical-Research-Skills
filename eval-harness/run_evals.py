@@ -21,7 +21,7 @@ Three things this harness does, none of which need an API key:
 
 Usage:
     python3 eval-harness/run_evals.py                 # lint + coverage
-    python3 eval-harness/run_evals.py --min-scenarios 14 --min-auto-checks 66 \
+    python3 eval-harness/run_evals.py --min-scenarios 17 --min-auto-checks 80 \
         --expect-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity
     python3 eval-harness/run_evals.py --list
     python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example

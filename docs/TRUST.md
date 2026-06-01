@@ -42,11 +42,11 @@ scorecards from removed or renamed tasks fail the gate.
 
 ## Current Eval Coverage
 
-`eval-harness/scenarios/*.toml` contains 14 scenarios and 78 rubric items.
+`eval-harness/scenarios/*.toml` contains 17 scenarios and 95 rubric items.
 
 | Category | Examples |
 |---|---|
-| Correctness | Staggered-DID estimator choice, weak-IV robust inference, RDD diagnostics, TWFE-trap warnings. |
+| Correctness | Staggered-DID estimator choice, weak-IV robust inference, RDD diagnostics, TWFE-trap warnings, bad-control/post-treatment bias, pre-trends discipline, and few-cluster inference. |
 | Reproducibility | AER replication-package structure and AEA Data Editor readiness. |
 | Citation hygiene | No fabricated DOI, URL, volume, issue, page-range, or other bibliographic metadata when the user only gives rough source anchors. |
 | Runtime safety | Refusal to run `curl | bash` style replication setup, isolation before executing untrusted scripts, and protection of real credentials. |
@@ -58,7 +58,7 @@ The fixture smoke test is intentionally strict:
 
 ```bash
 python3 eval-harness/run_evals.py \
-  --min-scenarios 14 --min-auto-checks 66 \
+  --min-scenarios 17 --min-auto-checks 80 \
   --expect-categories causal-identification,reproducibility,citation-hygiene,runtime-safety,research-integrity,writing-compliance,writing-style
 
 python3 eval-harness/run_evals.py --grade eval-harness/candidates/_example \
