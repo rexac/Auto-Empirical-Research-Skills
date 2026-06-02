@@ -18,6 +18,11 @@
   <img src="images/aers-readme-cover-en.png" alt="Auto-Empirical Research Skills cover" width="100%" />
 
   <br/>
+  <br/>
+
+  <img src="images/aers-causal-models-poster-en.png" alt="Automated causal inference model atlas for Auto-Empirical Research Skills" width="100%" />
+
+  <br/>
 
   <table>
     <tr>
