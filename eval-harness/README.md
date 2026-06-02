@@ -1,7 +1,7 @@
 # AERS Eval-Harness (executable layer)
 
 A lightweight, **dependency-free** evaluation harness for the flagship skills in
-this repo. It answers the question a maintainer of a 977-file skill collection
+this repo. It answers the question a maintainer of a 1,052-skill collection
 actually has to answer: *do these skills make an agent produce correct,
 referee-proof empirical work — or just plausible-looking text?*
 

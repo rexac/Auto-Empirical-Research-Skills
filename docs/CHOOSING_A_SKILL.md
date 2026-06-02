@@ -1,6 +1,6 @@
 # Which skill should I use?
 
-977 skills is a lot. This guide routes you to the right one by **what you are
+1,052 skills is a lot. This guide routes you to the right one by **what you are
 trying to do**, then by **method** and **language**. For interactive filtering
 use [`search.html`](search.html); for the full tag index see
 [`TAXONOMY.md`](TAXONOMY.md); for copy-paste end-to-end runs see

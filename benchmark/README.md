@@ -109,8 +109,8 @@ descendant of the treatment changes the estimand.
 
 The checker **recomputes** the data-derived golds (imbalance count, the true
 naive ATT, the true SMD table, the IV/TWFE coefficients, and the simulated
-staggered-DID estimands) every run, then compares the candidate's reported
-numbers against them. A candidate cannot pass by fabricating a clean balance
+staggered-DID, sharp-RD, and bad-control estimands) every run, then compares the
+candidate's reported numbers against them. A candidate cannot pass by fabricating a clean balance
 table or a flattering effect — the `honest-reported-numbers` gold cross-checks
 reported values against the data or deterministic DGP. Only the experimental
 LaLonde benchmark (~$1,794) is a literature constant, and its gold is marked
@@ -128,8 +128,8 @@ python3 benchmark/check_benchmark.py --lint
 
 # 3. Grade all tasks against the golds
 python3 benchmark/check_benchmark.py
-#    -> lalonde-recovery 15/15, card-iv-recovery 14/14,
-#       did-staggered-recovery 12/12, no required failures
+#    -> lalonde-recovery 15/15, card-iv-recovery 14/14, did-staggered-recovery 12/12,
+#       rdd-recovery 12/12, bad-control-recovery 12/12, no required failures
 
 # CI/reference gate: fail on required misses and optional-gold drift
 python3 benchmark/check_benchmark.py --strict --fail-on-partial --fail-on-orphan-results
@@ -179,11 +179,15 @@ benchmark/
   tasks/lalonde-recovery.toml   # observational DiD/matching recovery task
   tasks/card-iv-recovery.toml   # IV (returns-to-schooling) recovery task
   tasks/did-staggered-recovery.toml # staggered-DID TWFE-trap task
+  tasks/rdd-recovery.toml       # sharp-RDD running-variable-trend trap task
+  tasks/bad-control-recovery.toml   # post-treatment / bad-control bias task
   schema/task.schema.json       # JSON Schema documenting task TOML shape
   schema/candidate.schema.json  # JSON Schema documenting candidate results.json
   lib/lalonde.py                # pure-stdlib loaders, SMD, naive ATT, OLS
   lib/card.py                   # pure-stdlib OLS+SE, first-stage F, 2SLS
   lib/simdid.py                 # deterministic staggered-DID DGP and estimators
+  lib/rdd.py                    # deterministic sharp-RD DGP and local-linear fit
+  lib/badcontrol.py             # deterministic mediator DGP, total vs direct effect
   reference_pipeline.py         # writes committed reference candidates
   check_benchmark.py            # grades all tasks, recomputing data golds
   candidates/reference-*/       # the committed reference candidates
