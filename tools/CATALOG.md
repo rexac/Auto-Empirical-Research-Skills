@@ -16,16 +16,16 @@ Curated, license- and maintenance-aware index of **software tools** for automate
 | MCP servers (data & stats execution) | 48 |
 | Benchmarks & datasets | 9 |
 
-| Language | Tools | | Maintenance | Tools | | License | Tools |
-|---|---:|---|---|---:|---|---|---:|
-| Python | 98 | | 🟢 active | 117 | | permissive (MIT/BSD/Apache/…) | 121 |
-| R | 65 | | 🟡 maintained | 59 | | copyleft (GPL/AGPL/LGPL) | 49 |
-| Stata | 36 | | 🔴 dormant | 24 | | unverified / unmapped | 30 |
-| TypeScript | 10 | |  |  | |  |  |
-| Julia | 7 | |  |  | |  |  |
-| C++ | 5 | |  |  | |  |  |
-| Java | 3 | |  |  | |  |  |
-| JavaScript | 3 | |  |  | |  |  |
+| By language | Tools | | By maintenance | Tools | | By license | Tools |
+|---|---:|:-:|---|---:|:-:|---|---:|
+| Python | 98 |  | 🟢 active | 117 |  | permissive (MIT/BSD/Apache/…) | 121 |
+| R | 65 |  | 🟡 maintained | 59 |  | copyleft (GPL/AGPL/LGPL) | 49 |
+| Stata | 36 |  | 🔴 dormant | 24 |  | unverified / unmapped | 30 |
+| TypeScript | 10 |  |  |  |  |  |  |
+| Julia | 7 |  |  |  |  |  |  |
+| C++ | 5 |  |  |  |  |  |  |
+| Java | 3 |  |  |  |  |  |  |
+| JavaScript | 3 |  |  |  |  |  |  |
 
 > `last_activity` and `stars_approx` are point-in-time snapshots from the curation pass (see [`README.md`](README.md) for caveats). Status: 🟢 active ≈ commit within ~6 months · 🟡 maintained ≈ within ~2 years · 🔴 dormant ≈ older.
 

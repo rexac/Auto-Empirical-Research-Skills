@@ -26,16 +26,16 @@
 | MCP servers (data & stats execution) | 48 |
 | Benchmarks & datasets | 9 |
 
-| Language | Tools | | Maintenance | Tools | | License | Tools |
-|---|---:|---|---|---:|---|---|---:|
-| Python | 98 | | 🟢 active | 117 | | permissive (MIT/BSD/Apache/…) | 121 |
-| R | 65 | | 🟡 maintained | 59 | | copyleft (GPL/AGPL/LGPL) | 49 |
-| Stata | 36 | | 🔴 dormant | 24 | | unverified / unmapped | 30 |
-| TypeScript | 10 | |  |  | |  |  |
-| Julia | 7 | |  |  | |  |  |
-| C++ | 5 | |  |  | |  |  |
-| Java | 3 | |  |  | |  |  |
-| JavaScript | 3 | |  |  | |  |  |
+| By language | Tools | | By maintenance | Tools | | By license | Tools |
+|---|---:|:-:|---|---:|:-:|---|---:|
+| Python | 98 |  | 🟢 active | 117 |  | permissive (MIT/BSD/Apache/…) | 121 |
+| R | 65 |  | 🟡 maintained | 59 |  | copyleft (GPL/AGPL/LGPL) | 49 |
+| Stata | 36 |  | 🔴 dormant | 24 |  | unverified / unmapped | 30 |
+| TypeScript | 10 |  |  |  |  |  |  |
+| Julia | 7 |  |  |  |  |  |  |
+| C++ | 5 |  |  |  |  |  |  |
+| Java | 3 |  |  |  |  |  |  |
+| JavaScript | 3 |  |  |  |  |  |  |
 
 <!-- END GENERATED: summary -->
 
@@ -97,7 +97,7 @@
 收录门槛（与 [`../docs/SKILL_SUBMISSION_GUIDE.md`](../docs/SKILL_SUBMISSION_GUIDE.md) 对齐）：开源且可独立运行/检视；与实证研究、因果推断、数据获取相关；有可用的来源 URL。
 
 - **快照性质**：`stars_approx` / `last_activity` 为收录当次（2026-06）的时间点快照，会过时——依赖前请到上游确认。
-- **license 核实**：绝大多数已访问仓库核实；`unverified`/`NOASSERTION` 主要是无正式 LICENSE 文件的 Stata SSC 包，请按各自 RePEc/SSC 声明使用。
+- **license 核实**：每条都已实际访问仓库核实（`verified: true`）；约 30 条标 `unverified`/`NOASSERTION`，包括无正式 LICENSE 文件的 Stata SSC 包（请按各自 RePEc/SSC 声明使用）与 GitHub 未能映射许可证的部分 MCP 仓库——依赖前请到上游确认授权。
 - **收录 ≠ 背书**：本目录不对第三方工具的正确性、安全性或适用性作保证。
 
 ---
