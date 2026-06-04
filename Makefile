@@ -6,6 +6,7 @@ catalog:
 	python3 scripts/build-catalog.py
 	python3 scripts/build-evals.py
 	python3 scripts/build-catalog-enrich.py
+	python3 scripts/build-tools-catalog.py
 
 # Catalog/provenance/audit/eval freshness + repo link & frontmatter validation.
 validate:
@@ -17,6 +18,7 @@ validate:
 	python3 scripts/build-catalog.py --check
 	python3 scripts/build-evals.py --check
 	python3 scripts/build-catalog-enrich.py --check
+	python3 scripts/build-tools-catalog.py --check
 
 # Declarative flagship eval prompt matrix (docs/EVALS.md).
 evals:
