@@ -50,7 +50,7 @@
 
 **execute**
 - `Skill` 调用 `67/data-fetcher` 取数（FRED / World Bank / BLS / OECD / Yahoo Finance；A 股/中国
-  宏观等可配合 `57-dgunning-edgartools`、`58-charlescoverdale-econstack`、`59-shiquda-openalex`
+  宏观等可配合 `57-dgunning-edgartools`、`58-charlescoverdale-econstack`、`59-shiquda-openalex-skill`
   等集合，见 skill-map）。多个独立数据源可并行 subagent 各取一段、各自写盘到 `02_data/raw/`。
 - `Skill` 调用 `67/data-cleaning` 做清洗、对齐、合并、构造变量，产出 `02_data/clean.parquet`
   （或 `.dta/.csv`）与 `02_data/codebook.md`（每个变量的定义、来源、单位、缺失处理）。
@@ -88,7 +88,7 @@
   honest_did_from_result / sensitivity_from_result → bibtex(keys) 取可信引用`。
 
 **execute**
-- `Skill` 调用选定的估计 skill，按其工作流跑基准回归（用 `64-tmnk-mcp-stata` / `mcp__stata-*`
+- `Skill` 调用选定的估计 skill，按其工作流跑基准回归（用 `64-tmonk-mcp-stata` / `mcp__stata-*`
   跑 Stata，或 Python statsmodels/linearmodels/pyfixest=`40-py-econometrics-pyfixest`）。
 - **稳健性矩阵并行化**：把"安慰剂、替换样本、替换度量、加/减控制变量、改聚类层级、子样本异质性、
   机制中介"等彼此独立的检验，一次性派多个 subagent 并行跑，**每个 subagent 自己把系数/SE/图

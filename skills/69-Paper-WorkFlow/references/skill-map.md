@@ -14,11 +14,11 @@
 |---|---|---|---|
 | 1 | 选题漏斗 | **`67/econfin-idea-finder`** | `25-HosungYou-Diverga`、`61-phdemotions-research-methods` |
 | 1 | 写计划书 | **`67/econfin-proposal`** | `14-luischanci-claude-code-research-starter` |
-| 1 | 查新 / 重复性 | **`67/novelty-check`** | `59-shiquda-openalex-skill`、`62-PHY041-citation-checker` |
+| 1 | 查新 / 重复性 | **`67/novelty-check`** | `59-shiquda-openalex-skill`、`62-PHY041-claude-skill-citation-checker` |
 | 1 | 重要性 / 贡献论证 | **`67/significance-search`** | `11-James-Traina-compound-science` |
 | 1 | 目标期刊口味扫描 | **`67/journal-digest`** | `09-meleantonio-awesome-econ-ai-stuff` |
 | 2 | 取数 | **`67/data-fetcher`** | `57-dgunning-edgartools`(SEC/EDGAR)、`58-charlescoverdale-econstack`、`mcp__fred-mcp-server`、FRED/WRDS |
-| 2 | 清洗 | **`67/data-cleaning`** | `66-zheng-siyao/codebook-pass` |
+| 2 | 清洗 | **`67/data-cleaning`** | `66/codebook-pass` |
 | 3 | DiD | **`67/did-analysis`** | `10-Jill0099-causal-inference-mixtape`、`13-scunning1975-MixtapeTools`、StatsPAI `auto_did`/`callaway_santanna`/`sun_abraham` |
 | 3 | IV/2SLS | **`67/iv-estimation`** | StatsPAI `auto_iv`/`ivreg`/`anderson_rubin_ci` |
 | 3 | RDD | **`67/rdd-analysis`** | StatsPAI `rdrobust`/`rdbwselect`/`rddensity` |
@@ -27,17 +27,17 @@
 | 3 | OLS / 基础 | **`67/ols-regression`** | `20-wenddymacro-python-econ-skill` |
 | 3 | 时间序列 | **`67/time-series`** | StatsPAI `var`/`irf`/`arima`/`johansen` |
 | 3 | ML 因果 / 异质效应 | **`67/ml-causal`** | `51-pymc-labs-CausalPy`、StatsPAI `causal_forest`/`dml` |
-| 3 | Stata 执行 | **`67/stata`** | `64-tmonk-mcp-stata`、`32-dylantmoore-stata-skill`、`18-jusi-aalto-stata-accounting`、`mcp__stata-code`/`mcp__stata-mcp` |
+| 3 | Stata 执行 | **`67/stata`** | `64-tmonk-mcp-stata`、`32-dylantmoore-stata-skill`、`18-jusi-aalto-stata-accounting-research`、`mcp__stata-code`/`mcp__stata-mcp` |
 | 3 | 通用统计 | **`67/stats`** | `00-Full-empirical-analysis-skill_*`（StatsPAI/Python/Stata/R 四语言变体） |
-| 4 | 回归表（LaTeX 三线） | **`67/table`** | `66-zheng-siyao/latex-table` |
+| 4 | 回归表（LaTeX 三线） | **`67/table`** | `66/latex-table` |
 | 4 | 图 | **`67/figure`** | `39-vincentarelbundock-marginaleffects`、`55-ab604-claude-code-r-skills` |
 | 5 | 从表图写论文 | **`67/paper-writer`** | `01-lishix520-academic-paper-skills`、`04-K-Dense-AI-claude-scientific-writer`、`35-bahayonghang-academic-writing-skills` |
-| 5 | 文献综述 | `36-taoyunudt-literature-review-skill` | `52-keemanxp-slr-prisma`、`53-keemanxp-thematic-analysis`、`59-shiquda-openalex-skill` |
+| 5 | 文献综述 | `36-taoyunudt-literature-review-skill` | `52-keemanxp-slr-prisma`、`53-keemanxp-thematic-analysis-skill`、`59-shiquda-openalex-skill` |
 | 6 | 打磨流水线（编排级） | **`67/paper-pipeline`** | 其内部串：`paper-polish`/`paper-self-revise`/`paper-style`/`reference-verify` |
 | 6 | 单步：校对 | `67/paper-polish` | `38-peternka-academic-proofreader` |
 | 6 | 单步：自评修订 | `67/paper-self-revise` | — |
 | 6 | 单步：期刊风格 | `67/paper-style` | — |
-| 6 | 单步：引用核验 | `67/reference-verify` | `62-PHY041-citation-checker`、`66/citation-fidelity`、Zotero MCP `scite_check_retractions` |
+| 6 | 单步：引用核验 | `67/reference-verify` | `62-PHY041-claude-skill-citation-checker`、`66/citation-fidelity`、Zotero MCP `scite_check_retractions` |
 | 7 | 英文可读性 | **`67/readability`** | `56-hanlulong-econ-writing-skill` |
 | 7 | 英文去 AI 套话 | `44-matsuikentaro1-humanizer_academic` | `45-stephenturner-skill-deslop`、`46-hardikpandya-stop-slop`、`47-conorbronsdon-avoid-ai-writing` |
 | 7 | 中文去翻译腔/混排 | **`67/fix-chinese`** + `67/chinese-quote-converter` | `48-copaper-ai-chinese-de-aigc`、`49-voidborne-d-humanize-chinese` |

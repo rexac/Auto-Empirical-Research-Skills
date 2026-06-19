@@ -1159,7 +1159,7 @@
     {
       "commercial_use": "unknown",
       "has_license": false,
-      "has_readme": false,
+      "has_readme": true,
       "id": "69-Paper-WorkFlow",
       "license": "UNKNOWN - check upstream",
       "path": "skills/69-Paper-WorkFlow",
@@ -18559,7 +18559,7 @@
       "has_description": true,
       "has_frontmatter": true,
       "has_name": true,
-      "line_count": 209,
+      "line_count": 210,
       "name": "paper-workflow",
       "path": "skills/69-Paper-WorkFlow/SKILL.md"
     }
