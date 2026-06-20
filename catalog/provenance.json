@@ -1021,17 +1021,17 @@
       "vendored_commit": null
     },
     {
-      "commercial_use": "unknown",
+      "commercial_use": "allowed",
       "id": "69-Paper-WorkFlow",
       "last_aers_review": "2026-05-31",
-      "license": "UNKNOWN - check upstream",
-      "license_file": null,
+      "license": "MIT",
+      "license_file": "skills/69-Paper-WorkFlow/LICENSE",
       "origin": "vendored upstream",
       "path": "skills/69-Paper-WorkFlow",
       "security_review": "SECURITY-SCAN-REPORT.md",
       "skill_count": 1,
-      "source_confidence": "low",
-      "source_url": "https://github.com/Paper/WorkFlow",
+      "source_confidence": "medium",
+      "source_url": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills",
       "sync": "manual vendor snapshot",
       "vendored_commit": null
     }
@@ -1042,25 +1042,25 @@
   "summary": {
     "collections": 69,
     "commercial_use": {
-      "allowed": 35,
+      "allowed": 36,
       "restricted": 2,
       "share-alike": 5,
-      "unknown": 27
+      "unknown": 26
     },
     "licenses": {
       "AGPL-3.0": 1,
       "Apache-2.0": 1,
       "CC-BY-NC-4.0 (non-commercial)": 1,
       "CC-BY-SA-4.0 (repository default)": 4,
-      "MIT": 34,
+      "MIT": 35,
       "MIT Non-Commercial": 1,
       "Mixed (per-skill; see folder)": 2,
-      "UNKNOWN - check upstream": 25
+      "UNKNOWN - check upstream": 24
     },
     "source_confidence": {
       "high": 38,
-      "low": 8,
-      "medium": 19,
+      "low": 7,
+      "medium": 20,
       "unresolved": 4
     }
   }
