@@ -15969,7 +15969,7 @@
       "has_description": true,
       "has_frontmatter": true,
       "has_name": true,
-      "line_count": 193,
+      "line_count": 203,
       "name": "aer-identification",
       "path": "skills/50-brycewang-aer-skills/skills/aer-identification/SKILL.md"
     },
@@ -15983,13 +15983,13 @@
       "has_description": true,
       "has_frontmatter": true,
       "has_name": true,
-      "line_count": 150,
+      "line_count": 161,
       "name": "aer-introduction",
       "path": "skills/50-brycewang-aer-skills/skills/aer-introduction/SKILL.md"
     },
     {
       "collection": "50-brycewang-aer-skills",
-      "description": "Use when responding to a Revise & Resubmit decision from AER, AER:Insights, or an AEJ, and a point-by-point response letter plus aligned manuscript revisions are needed. Handles triage, the concede / clarify / push-back decision, and the response-letter format that editors actually read.",
+      "description": "Use when responding to any post-review decision from AER, AER:Insights, or an AEJ — Revise & Resubmit, reject-and-resubmit, or conditional acceptance — and a point-by-point response letter plus aligned manuscript revisions are needed. Handles comment triage, the concede / clarify / push-back decision, and the response-letter format that editors actually read.",
       "frontmatter_fields": [
         "description",
         "name"
@@ -16025,7 +16025,7 @@
       "has_description": true,
       "has_frontmatter": true,
       "has_name": true,
-      "line_count": 130,
+      "line_count": 141,
       "name": "aer-robustness",
       "path": "skills/50-brycewang-aer-skills/skills/aer-robustness/SKILL.md"
     },
@@ -16067,7 +16067,7 @@
       "has_description": true,
       "has_frontmatter": true,
       "has_name": true,
-      "line_count": 114,
+      "line_count": 124,
       "name": "aer-topic-selection",
       "path": "skills/50-brycewang-aer-skills/skills/aer-topic-selection/SKILL.md"
     },
