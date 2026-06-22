@@ -21,13 +21,18 @@ class TestSkillOptStyleGates(unittest.TestCase):
             "SkillOpt-style execution gate",
             "best_skill:",
             "train_signal:",
+            "selection_split:",
             "heldout_gate:",
+            "accepted_patterns:",
+            "rejected_patterns:",
             "patch_scope:",
             "reject_if:",
             "Route card",
             "Bounded edit",
+            "Selection split discipline",
             "Held-out gate",
             "Reject buffer",
+            "Slow/meta update",
             "Promote only after validation",
         ]
 
