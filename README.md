@@ -346,6 +346,7 @@ Four parallel implementations of the **same 8-step empirical loop** — *data cl
 - **First 10 minutes, end to end** → [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
 - **Copy-paste a full workflow** → [`docs/GOLDEN_WORKFLOWS.md`](docs/GOLDEN_WORKFLOWS.md)
 - **Install into a runtime / use without installing** → [`docs/INSTALL.md`](docs/INSTALL.md)
+- **Import the whole repo into Codex / CodeBuddy** → use the root [`SKILL.md`](SKILL.md) as the `auto-empirical-research-skills` router; copy individual child folders only when you want one skill registered directly.
 - **Machine-readable index** → [`catalog/skills.json`](catalog/skills.json) · taxonomy: [`docs/TAXONOMY.md`](docs/TAXONOMY.md) · full catalog: [`docs/SKILL_CATALOG.md`](docs/SKILL_CATALOG.md)
 - **How AERS fits the wider research-automation ecosystem & composes with other tools** → [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) · pipeline recipes: [`docs/INTEROP.md`](docs/INTEROP.md)
 - **FAQ** → [`docs/FAQ.md`](docs/FAQ.md)

@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
 MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
 CATALOG_JSON = ROOT / "catalog" / "skills.json"
+ROOT_SKILL_NAME = "auto-empirical-research-skills"
 
 
 def read_text(path: Path) -> str:
@@ -329,6 +330,8 @@ def validate_required_files() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     required = [
+        "SKILL.md",
+        "agents/openai.yaml",
         "README.md",
         "README-zh-CN.md",
         "README-ja.md",
@@ -372,6 +375,61 @@ def validate_required_files() -> tuple[list[str], list[str]]:
             errors.append(f"missing required project file: {item}")
     if not (ROOT / ".github" / "workflows").exists():
         warnings.append("missing .github/workflows directory")
+    return errors, warnings
+
+
+def validate_root_install_skill() -> tuple[list[str], list[str]]:
+    """Guard the whole-repo install compatibility surface.
+
+    Several IDE skill importers first validate the selected folder as a single
+    skill by looking for a top-level SKILL.md. AERS is a catalog repository, so
+    the root skill must stay a lightweight router rather than a copy of every
+    vendored skill.
+    """
+
+    errors: list[str] = []
+    warnings: list[str] = []
+    skill_path = ROOT / "SKILL.md"
+    if not skill_path.exists():
+        errors.append("missing root SKILL.md for whole-repo skill imports")
+        return errors, warnings
+
+    text = read_text(skill_path)
+    frontmatter = parse_frontmatter(text)
+    name = frontmatter.get("name", "").strip()
+    description = frontmatter.get("description", "").strip()
+
+    if name != ROOT_SKILL_NAME:
+        errors.append(
+            f"root SKILL.md name must be `{ROOT_SKILL_NAME}` for portable IDE installs"
+        )
+    if not re.match(r"^[a-z0-9-]+$", name):
+        errors.append("root SKILL.md name must be lowercase hyphen-case")
+    if not description:
+        errors.append("root SKILL.md missing frontmatter field `description`")
+    elif len(description) > 1024:
+        errors.append("root SKILL.md description exceeds 1024 characters")
+    if "<" in description or ">" in description:
+        errors.append("root SKILL.md description must not contain angle brackets")
+
+    required_router_terms = [
+        "Treat it as a router",
+        "catalog/skills.json",
+        "docs/INSTALL.md",
+        "Do not copy the repository root",
+    ]
+    for term in required_router_terms:
+        if term not in text:
+            errors.append(f"root SKILL.md missing install-router guidance: {term}")
+
+    openai_yaml = ROOT / "agents" / "openai.yaml"
+    if not openai_yaml.exists():
+        errors.append("missing agents/openai.yaml for root install metadata")
+    else:
+        yaml_text = read_text(openai_yaml)
+        if f"${ROOT_SKILL_NAME}" not in yaml_text:
+            errors.append("agents/openai.yaml default prompt must mention the root skill name")
+
     return errors, warnings
 
 
@@ -434,6 +492,7 @@ def main() -> int:
 
     checks = [
         validate_required_files,
+        validate_root_install_skill,
         validate_catalog_snapshot,
         validate_skill_frontmatter,
         validate_markdown_links,

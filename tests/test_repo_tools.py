@@ -139,6 +139,53 @@ class TestCatalogSnapshotConsistency(unittest.TestCase):
         self.assertTrue(any("top_level_collections" in error for error in errors))
 
 
+class TestRootInstallSkill(unittest.TestCase):
+    def test_current_root_skill_is_importable_as_single_skill(self):
+        errors, warnings = validate_repo.validate_root_install_skill()
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_missing_root_skill_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = validate_repo.Path(tmp)
+            old_root = validate_repo.ROOT
+            try:
+                validate_repo.ROOT = root
+                errors, _ = validate_repo.validate_root_install_skill()
+            finally:
+                validate_repo.ROOT = old_root
+
+        self.assertTrue(any("missing root SKILL.md" in error for error in errors))
+
+    def test_root_skill_must_stay_router(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = validate_repo.Path(tmp)
+            (root / "agents").mkdir()
+            (root / "agents" / "openai.yaml").write_text(
+                'interface:\n  default_prompt: "Use $auto-empirical-research-skills."\n',
+                encoding="utf-8",
+            )
+            (root / "SKILL.md").write_text(
+                "---\n"
+                "name: auto-empirical-research-skills\n"
+                "description: Route empirical research requests.\n"
+                "---\n"
+                "\n"
+                "# AERS\n",
+                encoding="utf-8",
+            )
+
+            old_root = validate_repo.ROOT
+            try:
+                validate_repo.ROOT = root
+                errors, _ = validate_repo.validate_root_install_skill()
+            finally:
+                validate_repo.ROOT = old_root
+
+        self.assertTrue(any("catalog/skills.json" in error for error in errors))
+        self.assertTrue(any("Do not copy the repository root" in error for error in errors))
+
+
 class TestMarkdownLinkValidation(unittest.TestCase):
     def test_fenced_code_detection(self):
         text = "before [ok](README.md)\n```markdown\n[example](missing.md)\n```\nafter\n"
